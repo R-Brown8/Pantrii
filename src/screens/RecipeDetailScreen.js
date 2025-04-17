@@ -1,17 +1,17 @@
 /**
  * Recipe Detail Screen
- * 
+ *
  * This screen displays detailed information about a recipe,
  * including ingredients, instructions, and pantry status.
  */
 
 import React, { useState, useContext } from 'react';
-import { 
-  View, 
-  Text, 
-  StyleSheet, 
-  ScrollView, 
-  Image, 
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  Image,
   TouchableOpacity,
   Modal,
   TextInput
@@ -30,7 +30,7 @@ const RecipeDetailScreen = ({ route, navigation }) => {
   const [activeTab, setActiveTab] = useState('ingredients'); // 'ingredients', 'instructions', 'nutrition'
   const [customizing, setCustomizing] = useState(false); // Added for MVP 5.5.2
   const [customizedRecipe, setCustomizedRecipe] = useState(null); // Store customized recipe
-  
+
   // Function to handle customization save
   const handleSaveCustomization = (customizedData) => {
     // Create a new recipe object with customized data
@@ -43,14 +43,14 @@ const RecipeDetailScreen = ({ route, navigation }) => {
       missingIngredients: recipe.missingIngredients,
       canMake: recipe.canMake
     };
-    
+
     setCustomizedRecipe(updatedRecipe);
     setCustomizing(false);
-    
+
     // Show success message
     alert('Recipe customized successfully!');
   };
-  
+
   // Function to add recipe to meal plan
   const handleAddToMealPlan = async () => {
     const mealPlan = {
@@ -61,9 +61,9 @@ const RecipeDetailScreen = ({ route, navigation }) => {
       servings: recipe.servings,
       notes: ''
     };
-    
+
     const success = await addMealPlan(mealPlan);
-    
+
     if (success) {
       // Show success message
       alert('Added to meal plan!');
@@ -72,9 +72,9 @@ const RecipeDetailScreen = ({ route, navigation }) => {
       alert('Failed to add to meal plan. Please try again.');
     }
   };
-  
+
   return (
-    <ScrollView 
+    <ScrollView
       style={[styles.container, { backgroundColor: colors.background }]}
       showsVerticalScrollIndicator={false}
     >
@@ -82,14 +82,14 @@ const RecipeDetailScreen = ({ route, navigation }) => {
       <View style={[styles.imagePlaceholder, { backgroundColor: colors.primary + '20' }]}>
         <Ionicons name="restaurant-outline" size={80} color={colors.primary} />
       </View>
-      
+
       {/* Recipe basic info */}
       <View style={styles.contentContainer}>
         <Text style={[styles.title, { color: colors.text }]}>{recipe.title}</Text>
         <Text style={[styles.description, { color: colors.text }]}>
           {recipe.description}
         </Text>
-        
+
         {/* Recipe details row */}
         <View style={styles.detailsRow}>
           <View style={styles.detailItem}>
@@ -99,7 +99,7 @@ const RecipeDetailScreen = ({ route, navigation }) => {
               <Text style={[styles.detailValue, { color: colors.text }]}>{recipe.prepTime} min</Text>
             </View>
           </View>
-          
+
           <View style={styles.detailItem}>
             <Ionicons name="flame-outline" size={20} color={colors.text} />
             <View style={styles.detailTextContainer}>
@@ -107,7 +107,7 @@ const RecipeDetailScreen = ({ route, navigation }) => {
               <Text style={[styles.detailValue, { color: colors.text }]}>{recipe.cookTime} min</Text>
             </View>
           </View>
-          
+
           <View style={styles.detailItem}>
             <Ionicons name="people-outline" size={20} color={colors.text} />
             <View style={styles.detailTextContainer}>
@@ -116,7 +116,7 @@ const RecipeDetailScreen = ({ route, navigation }) => {
             </View>
           </View>
         </View>
-        
+
         {/* Match percentage indicator */}
         {recipe.matchPercentage !== undefined && (
           <View style={[styles.matchContainer, { backgroundColor: colors.primary + '10' }]}>
@@ -134,53 +134,53 @@ const RecipeDetailScreen = ({ route, navigation }) => {
             )}
           </View>
         )}
-        
+
         {/* Tab navigation */}
         <View style={styles.tabContainer}>
-          <TouchableOpacity 
+          <TouchableOpacity
             style={[
-              styles.tab, 
+              styles.tab,
               activeTab === 'ingredients' && [styles.activeTab, { borderBottomColor: colors.primary }]
             ]}
             onPress={() => setActiveTab('ingredients')}
           >
-            <Text 
+            <Text
               style={[
-                styles.tabText, 
+                styles.tabText,
                 activeTab === 'ingredients' && [styles.activeTabText, { color: colors.primary }]
               ]}
             >
               Ingredients
             </Text>
           </TouchableOpacity>
-          
-          <TouchableOpacity 
+
+          <TouchableOpacity
             style={[
-              styles.tab, 
+              styles.tab,
               activeTab === 'instructions' && [styles.activeTab, { borderBottomColor: colors.primary }]
             ]}
             onPress={() => setActiveTab('instructions')}
           >
-            <Text 
+            <Text
               style={[
-                styles.tabText, 
+                styles.tabText,
                 activeTab === 'instructions' && [styles.activeTabText, { color: colors.primary }]
               ]}
             >
               Instructions
             </Text>
           </TouchableOpacity>
-          
-          <TouchableOpacity 
+
+          <TouchableOpacity
             style={[
-              styles.tab, 
+              styles.tab,
               activeTab === 'nutrition' && [styles.activeTab, { borderBottomColor: colors.primary }]
             ]}
             onPress={() => setActiveTab('nutrition')}
           >
-            <Text 
+            <Text
               style={[
-                styles.tabText, 
+                styles.tabText,
                 activeTab === 'nutrition' && [styles.activeTabText, { color: colors.primary }]
               ]}
             >
@@ -188,19 +188,19 @@ const RecipeDetailScreen = ({ route, navigation }) => {
             </Text>
           </TouchableOpacity>
         </View>
-        
+
         {/* Tab content */}
         <View style={styles.tabContent}>
           {/* Ingredients tab */}
           {activeTab === 'ingredients' && (
             <View>
-              <PantryStatusView 
+              <PantryStatusView
                 availableIngredients={recipe.availableIngredients || []}
                 missingIngredients={recipe.missingIngredients || []}
               />
             </View>
           )}
-          
+
           {/* Instructions tab */}
           {activeTab === 'instructions' && (
             <View>
@@ -216,7 +216,7 @@ const RecipeDetailScreen = ({ route, navigation }) => {
               ))}
             </View>
           )}
-          
+
           {/* Nutrition tab - placeholder for now */}
           {activeTab === 'nutrition' && (
             <View style={styles.placeholderContainer}>
@@ -227,25 +227,25 @@ const RecipeDetailScreen = ({ route, navigation }) => {
             </View>
           )}
         </View>
-        
+
         {/* Action buttons */}
         <View style={styles.actionsContainer}>
-          <TouchableOpacity 
+          <TouchableOpacity
             style={[styles.actionButton, { backgroundColor: colors.primary }]}
             onPress={handleAddToMealPlan}
           >
             <Ionicons name="calendar-outline" size={20} color="white" />
             <Text style={styles.actionButtonText}>Add to Meal Plan</Text>
           </TouchableOpacity>
-          
-          <TouchableOpacity 
+
+          <TouchableOpacity
             style={[styles.secondaryButton, { borderColor: colors.primary }]}
           >
             <Ionicons name="share-outline" size={20} color={colors.primary} />
             <Text style={[styles.secondaryButtonText, { color: colors.primary }]}>Share</Text>
             </TouchableOpacity>
-              
-            <TouchableOpacity 
+
+            <TouchableOpacity
               style={[styles.secondaryButton, { borderColor: colors.primary }]}
               onPress={() => setCustomizing(true)}
             >
@@ -253,7 +253,7 @@ const RecipeDetailScreen = ({ route, navigation }) => {
               <Text style={[styles.secondaryButtonText, { color: colors.primary }]}>Customize</Text>
             </TouchableOpacity>
           </View>
-          
+
           {/* Recipe Customizer Modal */}
           {customizing && (
             <Modal
@@ -270,13 +270,13 @@ const RecipeDetailScreen = ({ route, navigation }) => {
                       <Ionicons name="close" size={24} color={colors.text} />
                     </TouchableOpacity>
                   </View>
-                  
+
                   {/* Simple customization form */}
                   <ScrollView style={styles.customizeFormContainer}>
                     <View style={styles.customizeFormGroup}>
                       <Text style={[styles.customizeLabel, { color: colors.text }]}>Recipe Name</Text>
                       <TextInput
-                        style={[styles.customizeInput, { 
+                        style={[styles.customizeInput, {
                           color: colors.text,
                           backgroundColor: colors.background,
                           borderColor: colors.border
@@ -290,11 +290,11 @@ const RecipeDetailScreen = ({ route, navigation }) => {
                         placeholderTextColor={colors.text + '80'}
                       />
                     </View>
-                    
+
                     <View style={styles.customizeFormGroup}>
                       <Text style={[styles.customizeLabel, { color: colors.text }]}>Description</Text>
                       <TextInput
-                        style={[styles.customizeInput, styles.customizeTextarea, { 
+                        style={[styles.customizeInput, styles.customizeTextarea, {
                           color: colors.text,
                           backgroundColor: colors.background,
                           borderColor: colors.border
@@ -309,12 +309,12 @@ const RecipeDetailScreen = ({ route, navigation }) => {
                         numberOfLines={4}
                       />
                     </View>
-                    
+
                     <View style={styles.customizeRowFormGroup}>
                       <View style={[styles.customizeFormGroup, { flex: 1, marginRight: 8 }]}>
                         <Text style={[styles.customizeLabel, { color: colors.text }]}>Prep Time (min)</Text>
                         <TextInput
-                          style={[styles.customizeInput, { 
+                          style={[styles.customizeInput, {
                             color: colors.text,
                             backgroundColor: colors.background,
                             borderColor: colors.border
@@ -329,11 +329,11 @@ const RecipeDetailScreen = ({ route, navigation }) => {
                           keyboardType="number-pad"
                         />
                       </View>
-                      
+
                       <View style={[styles.customizeFormGroup, { flex: 1, marginLeft: 8 }]}>
                         <Text style={[styles.customizeLabel, { color: colors.text }]}>Cook Time (min)</Text>
                         <TextInput
-                          style={[styles.customizeInput, { 
+                          style={[styles.customizeInput, {
                             color: colors.text,
                             backgroundColor: colors.background,
                             borderColor: colors.border
@@ -349,11 +349,11 @@ const RecipeDetailScreen = ({ route, navigation }) => {
                         />
                       </View>
                     </View>
-                    
+
                     <View style={styles.customizeFormGroup}>
                       <Text style={[styles.customizeLabel, { color: colors.text }]}>Servings</Text>
                       <TextInput
-                        style={[styles.customizeInput, { 
+                        style={[styles.customizeInput, {
                           color: colors.text,
                           backgroundColor: colors.background,
                           borderColor: colors.border
@@ -368,12 +368,12 @@ const RecipeDetailScreen = ({ route, navigation }) => {
                         keyboardType="number-pad"
                       />
                     </View>
-                    
+
                     {/* Custom notes field */}
                     <View style={styles.customizeFormGroup}>
                       <Text style={[styles.customizeLabel, { color: colors.text }]}>Your Notes</Text>
                       <TextInput
-                        style={[styles.customizeInput, styles.customizeTextarea, { 
+                        style={[styles.customizeInput, styles.customizeTextarea, {
                           color: colors.text,
                           backgroundColor: colors.background,
                           borderColor: colors.border
@@ -389,9 +389,9 @@ const RecipeDetailScreen = ({ route, navigation }) => {
                       />
                     </View>
                   </ScrollView>
-                  
+
                   <View style={styles.customizeButtonContainer}>
-                    <TouchableOpacity 
+                    <TouchableOpacity
                       style={[styles.customizeCancelButton, { borderColor: colors.border }]}
                       onPress={() => {
                         setCustomizing(false);
@@ -403,8 +403,8 @@ const RecipeDetailScreen = ({ route, navigation }) => {
                     >
                       <Text style={[styles.customizeCancelButtonText, { color: colors.text }]}>Cancel</Text>
                     </TouchableOpacity>
-                    
-                    <TouchableOpacity 
+
+                    <TouchableOpacity
                       style={[styles.customizeSaveButton, { backgroundColor: colors.primary }]}
                       onPress={() => handleSaveCustomization(customizedRecipe || recipe)}
                     >
@@ -413,11 +413,11 @@ const RecipeDetailScreen = ({ route, navigation }) => {
                   </View>
                 </View>
               </View>
-            </Modal>
-          )
-      </View>
-    </ScrollView>
-  );
+              </Modal>
+          )}
+        </View>
+      </ScrollView>
+    );
 };
 
 const styles = StyleSheet.create({
@@ -583,7 +583,7 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     marginLeft: 8,
   },
-  
+
   // Customization modal styles
   customizeModalOverlay: {
     flex: 1,

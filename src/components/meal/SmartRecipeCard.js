@@ -43,17 +43,19 @@ const SmartRecipeCard = ({ recipe, onPress }) => {
             {recipe.description}
           </Text>
           
-          {/* Recipe tags */}
-          <View style={styles.tagsContainer}>
-            {recipe.tags && recipe.tags.slice(0, 3).map((tag, index) => (
-              <View 
-                key={index} 
-                style={[styles.tag, { backgroundColor: colors.primary + '20' }]}
-              >
-                <Text style={[styles.tagText, { color: colors.primary }]}>{tag}</Text>
-              </View>
-            ))}
-          </View>
+          {/* Recipe tags - only show if tags exist and aren't empty */}
+          {recipe.tags && recipe.tags.length > 0 && (
+            <View style={styles.tagsContainer}>
+              {recipe.tags.slice(0, 3).map((tag, index) => (
+                <View 
+                  key={index} 
+                  style={[styles.tag, { backgroundColor: colors.primary + '20' }]}
+                >
+                  <Text style={[styles.tagText, { color: colors.primary }]}>{tag}</Text>
+                </View>
+              ))}
+            </View>
+          )}
           
           {/* Recipe timing */}
           <View style={styles.detailsContainer}>

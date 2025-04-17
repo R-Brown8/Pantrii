@@ -1,6 +1,6 @@
-# Pantrii
+# Savour
 
-Pantrii is an evolution of the FlavorMind concept, focusing on intelligent meal planning based on your pantry inventory, flavor preferences, and dietary needs.
+Savour is an evolution of the original concept, focusing on intelligent meal planning based on your pantry inventory, flavor preferences, and dietary needs.
 
 ## Features
 

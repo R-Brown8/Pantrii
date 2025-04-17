@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "FlavorMind MVP 2",
-    "slug": "flavormind-mvp2",
+    "name": "Savour MVP 2",
+    "slug": "savour-mvp2",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -30,8 +30,8 @@
       [
         "expo-image-picker",
         {
-          "photosPermission": "Allow FlavorMind to access your photos to add meal images.",
-          "cameraPermission": "Allow FlavorMind to access your camera to take photos of your meals."
+          "photosPermission": "Allow Savour to access your photos to add meal images.",
+          "cameraPermission": "Allow Savour to access your camera to take photos of your meals."
         }
       ]
     ],

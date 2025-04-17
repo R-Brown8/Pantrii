@@ -40,7 +40,7 @@ const SettingsScreen = () => {
       const updated = { ...prev, [key]: !prev[key] };
 
       // Save to storage
-      AsyncStorage.setItem('flavormind_settings', JSON.stringify(updated))
+      AsyncStorage.setItem('savour_settings', JSON.stringify(updated))
         .catch(error => console.error('Error saving settings:', error));
 
       return updated;
@@ -64,7 +64,7 @@ const SettingsScreen = () => {
                 Config.storage.pantryItems,
                 Config.storage.mealHistory,
                 Config.storage.flavorProfile,
-                'flavormind_pantry_categories'
+                'savour_pantry_categories'
               ]);
 
               // Reload app data
@@ -245,8 +245,8 @@ const SettingsScreen = () => {
         {/* About */}
         {renderSection('About', (
           <Card style={styles.infoCard}>
-            <Text style={styles.appName}>FlavorMind</Text>
-            <Text style={styles.appVersion}>Version 0.2.0 (MVP 2)</Text>
+            <Text style={styles.appName}>Savour</Text>
+            <Text style={styles.appVersion}>Version 0.2.5.1 (MVP 5)</Text>
             <Text style={styles.appDescription}>
               Your personal kitchen assistant helping you track pantry items,
               log meals, and reduce food waste.
@@ -277,7 +277,7 @@ const SettingsScreen = () => {
                         });
 
                         // Clear settings from storage
-                        AsyncStorage.removeItem('flavormind_settings')
+                        AsyncStorage.removeItem('savour_settings')
                           .catch(error => console.error('Error clearing settings:', error));
                       }
                     }
@@ -298,7 +298,7 @@ const SettingsScreen = () => {
         {/* Attribution */}
         <View style={styles.attribution}>
           <Text style={styles.attributionText}>
-            Built with ❤️ by Ryan (FlavorMind Team)
+            Built with ❤️ by Ryan (Savour Team)
           </Text>
         </View>
       </ScrollView>

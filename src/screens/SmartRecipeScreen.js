@@ -2,7 +2,7 @@
  * Smart Recipe Screen
  * 
  * This screen displays recipe suggestions based on pantry contents.
- * Now a primary tab in the Pantrii app (5.5.1).
+ * Now a primary tab in the Savour app (5.5.1).
  */
 
 import React, { useEffect, useState, useContext } from 'react';

@@ -2,7 +2,7 @@
  * App Context Provider
  * 
  * This file implements a React Context that provides global state management
- * for the FlavorMind app. It now includes meal planning capabilities for MVP 3.
+ * for the Savour app. It now includes meal planning capabilities for MVP 3.
  */
 
 import React, { createContext, useState, useContext, useEffect } from 'react';
@@ -64,7 +64,7 @@ export const AppProvider = ({ children }) => {
       }
 
       // Load categories (for MVP 2)
-      const storedCategories = await AsyncStorage.getItem('flavormind_pantry_categories');
+      const storedCategories = await AsyncStorage.getItem('savour_pantry_categories');
       
       // Load flavor profile (for MVP 4)
       const storedFlavorProfile = await AsyncStorage.getItem(Config.storage.flavorProfile);
@@ -83,7 +83,7 @@ export const AppProvider = ({ children }) => {
           { id: '8', name: 'Other', icon: 'archive' }
         ];
         setCategories(defaultCategories);
-        await AsyncStorage.setItem('flavormind_pantry_categories', JSON.stringify(defaultCategories));
+        await AsyncStorage.setItem('savour_pantry_categories', JSON.stringify(defaultCategories));
       }
       
       // Process flavor profile data
@@ -236,7 +236,7 @@ export const AppProvider = ({ children }) => {
       
       const updatedCategories = [...categories, newCategory];
       setCategories(updatedCategories);
-      await AsyncStorage.setItem('flavormind_pantry_categories', JSON.stringify(updatedCategories));
+      await AsyncStorage.setItem('savour_pantry_categories', JSON.stringify(updatedCategories));
       return true;
     } catch (error) {
       console.error('Error adding category:', error);

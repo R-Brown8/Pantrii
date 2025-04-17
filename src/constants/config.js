@@ -29,11 +29,11 @@ const Config = {
   
   // Storage keys (used with AsyncStorage)
   storage: {
-    pantryItems: 'flavormind_pantry_items',
-    mealHistory: 'flavormind_meal_history',
-    mealPlans: 'flavormind_meal_plans',
-    userPreferences: 'flavormind_user_preferences',
-    flavorProfile: 'flavormind_flavor_profile',
+    pantryItems: 'savour_pantry_items',
+    mealHistory: 'savour_meal_history',
+    mealPlans: 'savour_meal_plans',
+    userPreferences: 'savour_user_preferences',
+    flavorProfile: 'savour_flavor_profile',
   },
   
   // Flavor categories for MVP 4

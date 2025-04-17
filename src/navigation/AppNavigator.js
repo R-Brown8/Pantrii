@@ -2,11 +2,12 @@
  * AppNavigator
  * 
  * Main navigation configuration for the app.
- * Implements a tab-based navigation structure.
+ * Implements a tab-based navigation structure with stack navigators for each tab.
  */
 
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { createStackNavigator } from '@react-navigation/stack';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Colors from '../constants/colors';
@@ -17,9 +18,48 @@ import LogMealScreen from '../screens/LogMealScreen';
 import MealHistoryScreen from '../screens/MealHistoryScreen';
 import MealPlanScreen from '../screens/MealPlanScreen';
 import SettingsScreen from '../screens/SettingsScreen';
+import SmartRecipeScreen from '../screens/SmartRecipeScreen';
+import RecipeDetailScreen from '../screens/RecipeDetailScreen';
+import FlavorProfileScreen from '../screens/FlavorProfileScreen';
 
-// Create tab navigator
+// Create navigators
 const Tab = createBottomTabNavigator();
+const Stack = createStackNavigator();
+
+// Create stack navigators for each tab
+const PantryStack = () => (
+  <Stack.Navigator
+    screenOptions={{
+      headerShown: false,
+    }}
+  >
+    <Stack.Screen name="PantryHome" component={PantryScreen} />
+    <Stack.Screen name="SmartRecipe" component={SmartRecipeScreen} />
+    <Stack.Screen name="RecipeDetail" component={RecipeDetailScreen} />
+  </Stack.Navigator>
+);
+
+const MealPlanStack = () => (
+  <Stack.Navigator
+    screenOptions={{
+      headerShown: false,
+    }}
+  >
+    <Stack.Screen name="MealPlanHome" component={MealPlanScreen} />
+    <Stack.Screen name="RecipeDetail" component={RecipeDetailScreen} />
+  </Stack.Navigator>
+);
+
+const SettingsStack = () => (
+  <Stack.Navigator
+    screenOptions={{
+      headerShown: false,
+    }}
+  >
+    <Stack.Screen name="SettingsHome" component={SettingsScreen} />
+    <Stack.Screen name="FlavorProfile" component={FlavorProfileScreen} />
+  </Stack.Navigator>
+);
 
 const AppNavigator = () => {
   // Get the safe area insets
@@ -81,7 +121,7 @@ const AppNavigator = () => {
     >
       <Tab.Screen 
         name="Pantry" 
-        component={PantryScreen}
+        component={PantryStack}
         options={{
           title: 'Your Pantry'
         }}
@@ -102,14 +142,14 @@ const AppNavigator = () => {
       />
       <Tab.Screen 
         name="Meal Plan" 
-        component={MealPlanScreen}
+        component={MealPlanStack}
         options={{
           title: 'Meal Planner'
         }}
       />
       <Tab.Screen 
         name="Settings" 
-        component={SettingsScreen}
+        component={SettingsStack}
         options={{
           title: 'Settings'
         }}

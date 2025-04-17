@@ -6,6 +6,7 @@ import { LogBox, ActivityIndicator, SafeAreaView, Platform, View, StyleSheet } f
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import AppNavigator from './src/navigation/AppNavigator';
 import { AppProvider } from './src/context/AppContext';
+import { RecipeProvider } from './src/context/RecipeContext';
 import applyAllPatches from './src/utils/globalPatches';
 
 // Apply comprehensive patches to fix string-to-number conversion issues
@@ -37,9 +38,11 @@ export default function App() {
       <SafeAreaProvider>
         <StatusBar style="auto" />
         <AppProvider>
-          <NavigationContainer>
-            <AppNavigator />
-          </NavigationContainer>
+          <RecipeProvider>
+            <NavigationContainer>
+              <AppNavigator />
+            </NavigationContainer>
+          </RecipeProvider>
         </AppProvider>
       </SafeAreaProvider>
     </GestureHandlerRootView>

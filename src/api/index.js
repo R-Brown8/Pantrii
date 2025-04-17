@@ -6,7 +6,11 @@
  */
 
 import { MOCK_PANTRY_ITEMS, MOCK_MEALS, MOCK_CATEGORIES } from './mockData';
+import { getRecipes, getRecipeById } from './recipes';
 import Config from '../constants/config';
+
+// Export the recipe functions
+export { getRecipes, getRecipeById };
 
 // Simulate API delay for more realistic development
 const apiDelay = (ms = 300) => new Promise(resolve => setTimeout(resolve, ms));

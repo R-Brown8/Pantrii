@@ -2,7 +2,7 @@
  * PantryScreen
  * 
  * Main screen for pantry inventory management.
- * This is a central feature of MVP 2.
+ * This is a central feature of MVP 2, enhanced for Pantrii 5.5.1.
  */
 
 import React, { useState, useEffect, useMemo, useRef } from 'react';
@@ -33,8 +33,9 @@ import PantryItemForm from '../components/pantry/PantryItemForm';
 import PantryStats from '../components/pantry/PantryStats';
 import Button from '../components/ui/Button';
 import Card from '../components/ui/Card';
+import SmartRecipeButton from '../components/meal/SmartRecipeButton';
 
-const PantryScreen = () => {
+const PantryScreen = ({ navigation }) => {
   // Reference to track component renders
   const renderCount = useRef(0);
   
@@ -390,6 +391,20 @@ const PantryScreen = () => {
     );
   };
   
+  // Render Smart Recipe Button
+  const renderSmartRecipeButton = () => {
+    if (pantryItems.length > 0) {
+      return (
+        <View style={styles.smartRecipeButtonContainer}>
+          <SmartRecipeButton
+            onPress={() => navigation.navigate('SmartRecipe')}
+          />
+        </View>
+      );
+    }
+    return null;
+  };
+  
   return (
     <SafeAreaView style={styles.container}>
       <TouchableOpacity 
@@ -440,6 +455,9 @@ const PantryScreen = () => {
           </TouchableOpacity>
         ) : null}
       </View>
+      
+      {/* Smart Recipe Button */}
+      {renderSmartRecipeButton()}
       
       {/* Filter Tabs */}
       <View style={styles.filterTabs}>
@@ -668,6 +686,10 @@ const styles = StyleSheet.create({
     height: 44,
     fontSize: 16,
     color: Colors.textPrimary,
+  },
+  smartRecipeButtonContainer: {
+    paddingHorizontal: 16,
+    marginBottom: 12,
   },
   filterTabs: {
     flexDirection: 'row',

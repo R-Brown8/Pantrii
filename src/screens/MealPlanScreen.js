@@ -406,17 +406,17 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.background,
   },
   header: {
-    padding: 16,
-    paddingTop: 20,
+    padding: 12,
+    paddingTop: 16,
   },
   title: {
-    fontSize: 28,
+    fontSize: 24,
     fontWeight: 'bold',
     color: Colors.textPrimary,
     marginBottom: 4,
   },
   subtitle: {
-    fontSize: 16,
+    fontSize: 14,
     color: Colors.textSecondary,
   },
   generateButton: {
@@ -424,9 +424,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    margin: 16,
-    marginTop: 8,
-    padding: 16,
+    margin: 12,
+    marginTop: 6,
+    padding: 14,
     borderRadius: 12,
   },
   generateButtonText: {
@@ -438,23 +438,23 @@ const styles = StyleSheet.create({
     marginRight: 8,
   },
   plannerSection: {
-    marginBottom: 16,
+    marginBottom: 8,
   },
   sectionTitle: {
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: 'bold',
     color: Colors.textPrimary,
     marginHorizontal: 16,
-    marginBottom: 12,
+    marginBottom: 10,
   },
   loader: {
     alignSelf: 'center',
     marginVertical: 40,
   },
   infoSection: {
-    margin: 16,
-    marginTop: 8,
-    padding: 16,
+    margin: 12,
+    marginTop: 4,
+    padding: 14,
     backgroundColor: Colors.card,
     borderRadius: 12,
     borderWidth: 1,
@@ -463,7 +463,7 @@ const styles = StyleSheet.create({
   infoItem: {
     flexDirection: 'row',
     alignItems: 'flex-start',
-    marginBottom: 16,
+    marginBottom: 12,
   },
   infoIcon: {
     marginRight: 12,
@@ -479,9 +479,9 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   infoText: {
-    fontSize: 14,
+    fontSize: 13,
     color: Colors.textSecondary,
-    lineHeight: 20,
+    lineHeight: 18,
   },
 
   // Day selector modal styles

@@ -2,6 +2,7 @@
  * Smart Recipe Screen
  * 
  * This screen displays recipe suggestions based on pantry contents.
+ * Now a primary tab in the Pantrii app (5.5.1).
  */
 
 import React, { useEffect, useState, useContext } from 'react';
@@ -11,11 +12,13 @@ import {
   StyleSheet, 
   FlatList, 
   TouchableOpacity, 
-  ActivityIndicator 
+  ActivityIndicator,
+  SafeAreaView 
 } from 'react-native';
 import { useRecipeContext } from '../context/RecipeContext';
 import SmartRecipeCard from '../components/meal/SmartRecipeCard';
 import { useTheme } from '@react-navigation/native';
+import Colors from '../constants/colors';
 import { Ionicons } from '@expo/vector-icons';
 
 const SmartRecipeScreen = ({ navigation }) => {
@@ -41,15 +44,17 @@ const SmartRecipeScreen = ({ navigation }) => {
   };
 
   return (
-    <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <Text style={[styles.title, { color: colors.text }]}>Pantrii Smart Recipes</Text>
+    <SafeAreaView style={styles.container}>
+      <View style={styles.header}>
+        <Text style={styles.headerTitle}>Smart Recipes</Text>
+      </View>
       
       {/* Filter controls */}
       <View style={styles.filterContainer}>
         <TouchableOpacity 
           style={[
             styles.filterButton, 
-            filterType === 'all' && [styles.activeFilter, { backgroundColor: colors.primary }]
+            filterType === 'all' && styles.activeFilter
           ]}
           onPress={() => setFilterType('all')}
         >
@@ -62,7 +67,7 @@ const SmartRecipeScreen = ({ navigation }) => {
         <TouchableOpacity 
           style={[
             styles.filterButton, 
-            filterType === 'canMake' && [styles.activeFilter, { backgroundColor: colors.primary }]
+            filterType === 'canMake' && styles.activeFilter
           ]}
           onPress={() => setFilterType('canMake')}
         >
@@ -75,7 +80,7 @@ const SmartRecipeScreen = ({ navigation }) => {
         <TouchableOpacity 
           style={[
             styles.filterButton, 
-            filterType === 'expiring' && [styles.activeFilter, { backgroundColor: colors.primary }]
+            filterType === 'expiring' && styles.activeFilter
           ]}
           onPress={() => setFilterType('expiring')}
         >
@@ -89,9 +94,9 @@ const SmartRecipeScreen = ({ navigation }) => {
       {/* Error message if any */}
       {error && (
         <View style={styles.messageContainer}>
-          <Text style={[styles.errorText, { color: colors.notification }]}>{error}</Text>
+          <Text style={styles.errorText}>{error}</Text>
           <TouchableOpacity 
-            style={[styles.retryButton, { backgroundColor: colors.primary }]}
+            style={styles.retryButton}
             onPress={getSmartSuggestions}
           >
             <Text style={styles.retryButtonText}>Retry</Text>
@@ -102,19 +107,19 @@ const SmartRecipeScreen = ({ navigation }) => {
       {/* Loading indicator */}
       {loading && (
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color={colors.primary} />
-          <Text style={[styles.loadingText, { color: colors.text }]}>Finding recipes...</Text>
+          <ActivityIndicator size="large" color={Colors.primary} />
+          <Text style={styles.loadingText}>Finding recipes...</Text>
         </View>
       )}
 
       {/* Empty state */}
       {!loading && !error && filteredSuggestions().length === 0 && (
         <View style={styles.emptyContainer}>
-          <Ionicons name="restaurant-outline" size={64} color={colors.text} />
-          <Text style={[styles.emptyText, { color: colors.text }]}>
+          <Ionicons name="restaurant-outline" size={64} color={Colors.textTertiary} />
+          <Text style={styles.emptyText}>
             No matching recipes found.
           </Text>
-          <Text style={[styles.emptySubtext, { color: colors.text }]}>
+          <Text style={styles.emptySubtext}>
             Try adding more items to your pantry or adjusting your filters.
           </Text>
         </View>
@@ -138,29 +143,36 @@ const SmartRecipeScreen = ({ navigation }) => {
       
       {/* Refresh button */}
       <TouchableOpacity 
-        style={[styles.refreshButton, { backgroundColor: colors.primary }]}
+        style={styles.refreshButton}
         onPress={getSmartSuggestions}
         disabled={loading}
       >
         <Ionicons name="refresh-outline" size={24} color="white" />
       </TouchableOpacity>
-    </View>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 16,
+    backgroundColor: Colors.background,
   },
-  title: {
+  header: {
+    paddingVertical: 16,
+    paddingHorizontal: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.border,
+  },
+  headerTitle: {
     fontSize: 24,
     fontWeight: 'bold',
-    marginBottom: 16,
+    color: Colors.textPrimary,
   },
   filterContainer: {
     flexDirection: 'row',
-    marginBottom: 16,
+    paddingHorizontal: 16,
+    marginVertical: 12,
   },
   filterButton: {
     paddingVertical: 8,
@@ -168,35 +180,40 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     marginRight: 8,
     borderWidth: 1,
-    borderColor: '#ccc',
+    borderColor: Colors.border,
+    backgroundColor: Colors.background,
   },
   activeFilter: {
-    borderColor: 'transparent',
+    backgroundColor: Colors.primary,
+    borderColor: Colors.primary,
   },
   filterText: {
     fontSize: 14,
+    color: Colors.textSecondary,
   },
   activeFilterText: {
-    color: 'white',
+    color: Colors.textLight,
     fontWeight: '500',
   },
   messageContainer: {
     padding: 16,
+    margin: 16,
     borderRadius: 8,
     backgroundColor: '#FFF3F3',
-    marginBottom: 16,
     alignItems: 'center',
   },
   errorText: {
     marginBottom: 12,
+    color: Colors.danger,
   },
   retryButton: {
     paddingVertical: 8,
     paddingHorizontal: 16,
     borderRadius: 4,
+    backgroundColor: Colors.primary,
   },
   retryButtonText: {
-    color: 'white',
+    color: Colors.textLight,
     fontWeight: '500',
   },
   loadingContainer: {
@@ -207,6 +224,7 @@ const styles = StyleSheet.create({
   loadingText: {
     marginTop: 16,
     fontSize: 16,
+    color: Colors.textSecondary,
   },
   emptyContainer: {
     flex: 1,
@@ -219,13 +237,16 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginTop: 16,
     textAlign: 'center',
+    color: Colors.textPrimary,
   },
   emptySubtext: {
     fontSize: 14,
     textAlign: 'center',
     marginTop: 8,
+    color: Colors.textSecondary,
   },
   listContent: {
+    padding: 16,
     paddingBottom: 80, // Give space for the refresh button
   },
   refreshButton: {
@@ -235,6 +256,7 @@ const styles = StyleSheet.create({
     width: 56,
     height: 56,
     borderRadius: 28,
+    backgroundColor: Colors.primary,
     justifyContent: 'center',
     alignItems: 'center',
     elevation: 4,

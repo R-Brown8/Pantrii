@@ -16,6 +16,7 @@ import Colors from '../constants/colors';
 import PantryScreen from '../screens/PantryScreen';
 import LogMealScreen from '../screens/LogMealScreen';
 import MealHistoryScreen from '../screens/MealHistoryScreen';
+import MealLogScreen from '../screens/MealLogScreen';
 import MealPlanScreen from '../screens/MealPlanScreen';
 import SettingsScreen from '../screens/SettingsScreen';
 import SmartRecipeScreen from '../screens/SmartRecipeScreen';
@@ -34,8 +35,29 @@ const PantryStack = () => (
     }}
   >
     <Stack.Screen name="PantryHome" component={PantryScreen} />
+    <Stack.Screen name="RecipeDetail" component={RecipeDetailScreen} />
+  </Stack.Navigator>
+);
+
+const RecipeStack = () => (
+  <Stack.Navigator
+    screenOptions={{
+      headerShown: false,
+    }}
+  >
     <Stack.Screen name="SmartRecipe" component={SmartRecipeScreen} />
     <Stack.Screen name="RecipeDetail" component={RecipeDetailScreen} />
+  </Stack.Navigator>
+);
+
+const MealLogStack = () => (
+  <Stack.Navigator
+    screenOptions={{
+      headerShown: false,
+    }}
+  >
+    <Stack.Screen name="MealLogHome" component={MealLogScreen} />
+    <Stack.Screen name="LogMeal" component={LogMealScreen} />
   </Stack.Navigator>
 );
 
@@ -74,10 +96,10 @@ const AppNavigator = () => {
           
           if (route.name === 'Pantry') {
             iconName = focused ? 'basket' : 'basket-outline';
-          } else if (route.name === 'Log Meal') {
+          } else if (route.name === 'Recipes') {
             iconName = focused ? 'restaurant' : 'restaurant-outline';
-          } else if (route.name === 'Meal History') {
-            iconName = focused ? 'time' : 'time-outline';
+          } else if (route.name === 'Meal Log') {
+            iconName = focused ? 'book' : 'book-outline';
           } else if (route.name === 'Meal Plan') {
             iconName = focused ? 'calendar' : 'calendar-outline';
           } else if (route.name === 'Settings') {
@@ -127,17 +149,17 @@ const AppNavigator = () => {
         }}
       />
       <Tab.Screen 
-        name="Log Meal" 
-        component={LogMealScreen}
+        name="Recipes" 
+        component={RecipeStack}
         options={{
-          title: 'Log Meal'
+          title: 'Smart Recipes'
         }}
       />
       <Tab.Screen 
-        name="Meal History" 
-        component={MealHistoryScreen}
+        name="Meal Log" 
+        component={MealLogStack}
         options={{
-          title: 'Meal History'
+          title: 'Meal Log'
         }}
       />
       <Tab.Screen 

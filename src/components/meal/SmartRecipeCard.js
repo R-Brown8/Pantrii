@@ -80,10 +80,18 @@ const SmartRecipeCard = ({ recipe, onPress }) => {
           </View>
         </View>
         
-        {/* Recipe image placeholder */}
-        <View style={[styles.imagePlaceholder, { backgroundColor: colors.primary + '15' }]}>
-          <Ionicons name="restaurant-outline" size={32} color={colors.primary} />
-        </View>
+        {/* Recipe image or placeholder */}
+        {recipe.imageUrl ? (
+          <Image 
+            source={{ uri: recipe.imageUrl }} 
+            style={styles.image}
+            resizeMode="cover"
+          />
+        ) : (
+          <View style={styles.imagePlaceholder}>
+            <Ionicons name="restaurant-outline" size={32} color="#AAAAAA" />
+          </View>
+        )}
       </View>
       
       {/* Status indicators */}
@@ -93,17 +101,17 @@ const SmartRecipeCard = ({ recipe, onPress }) => {
         
         {/* Ready to cook indicator */}
         {recipe.canMake && (
-          <View style={styles.statusIndicator}>
+          <View style={[styles.statusIndicator, { backgroundColor: '#4CAF5020' }]}>
             <Ionicons name="checkmark-circle" size={16} color="#4CAF50" />
-            <Text style={styles.statusText}>Ready to cook</Text>
+            <Text style={[styles.statusText, { color: '#4CAF50' }]}>Ready to cook</Text>
           </View>
         )}
         
         {/* Uses expiring ingredients */}
         {recipe.usesExpiringItems && (
-          <View style={styles.statusIndicator}>
+          <View style={[styles.statusIndicator, { backgroundColor: '#FF980020' }]}>
             <Ionicons name="time" size={16} color="#FF9800" />
-            <Text style={styles.statusText}>Uses expiring items</Text>
+            <Text style={[styles.statusText, { color: '#FF9800' }]}>Uses expiring items</Text>
           </View>
         )}
       </View>
@@ -168,12 +176,18 @@ const styles = StyleSheet.create({
     marginLeft: 4,
     opacity: 0.8,
   },
+  image: {
+    width: 100,
+    height: 100,
+    borderRadius: 8,
+  },
   imagePlaceholder: {
     width: 100,
     height: 100,
     borderRadius: 8,
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: '#F5F5F5',
   },
   indicatorsContainer: {
     flexDirection: 'row',
@@ -184,7 +198,6 @@ const styles = StyleSheet.create({
   statusIndicator: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#F5F5F5',
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 16,
@@ -193,6 +206,7 @@ const styles = StyleSheet.create({
   statusText: {
     fontSize: 12,
     marginLeft: 4,
+    fontWeight: '500',
   },
 });
 

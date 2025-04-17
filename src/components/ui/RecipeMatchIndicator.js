@@ -7,6 +7,7 @@
 
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 
 const RecipeMatchIndicator = ({ percentage }) => {
   // Determine color based on percentage
@@ -25,22 +26,34 @@ const RecipeMatchIndicator = ({ percentage }) => {
     return 'Poor match';
   };
   
+  // Get icon based on percentage
+  const getIcon = () => {
+    if (percentage >= 75) return 'checkmark-circle';
+    if (percentage >= 50) return 'thumbs-up';
+    if (percentage >= 25) return 'alert-circle';
+    return 'alert';
+  };
+  
   // Background color with transparency
   const backgroundColor = getColor() + '20'; // Add 20% opacity
+  const color = getColor();
   
   return (
     <View style={[styles.container, { backgroundColor }]}>
       {/* Circle indicator */}
-      <View style={[styles.circle, { borderColor: getColor() }]}>
-        <Text style={[styles.percentage, { color: getColor() }]}>
-          {percentage}%
+      <View style={[styles.circle, { borderColor: color }]}>
+        <Text style={[styles.percentage, { color }]}>
+          {Math.round(percentage)}%
         </Text>
       </View>
       
-      {/* Label */}
-      <Text style={[styles.label, { color: getColor() }]}>
-        {getLabel()}
-      </Text>
+      {/* Label and icon */}
+      <View style={styles.labelContainer}>
+        <Text style={[styles.label, { color }]}>
+          {getLabel()}
+        </Text>
+        <Ionicons name={getIcon()} size={14} color={color} style={styles.icon} />
+      </View>
     </View>
   );
 };
@@ -50,7 +63,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 8,
-    paddingVertical: 4,
+    paddingVertical: 6,
     borderRadius: 16,
     marginRight: 8,
   },
@@ -67,11 +80,18 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: 'bold',
   },
+  labelContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginLeft: 8,
+  },
   label: {
     fontSize: 12,
     fontWeight: '500',
-    marginLeft: 8,
   },
+  icon: {
+    marginLeft: 4,
+  }
 });
 
 export default RecipeMatchIndicator;

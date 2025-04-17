@@ -2,7 +2,7 @@
  * PantryScreen
  * 
  * Main screen for pantry inventory management.
- * This is a central feature of MVP 2, enhanced for Pantrii 5.5.1.
+ * Updated for Pantrii 5.5.1.
  */
 
 import React, { useState, useEffect, useMemo, useRef } from 'react';
@@ -33,7 +33,6 @@ import PantryItemForm from '../components/pantry/PantryItemForm';
 import PantryStats from '../components/pantry/PantryStats';
 import Button from '../components/ui/Button';
 import Card from '../components/ui/Card';
-import SmartRecipeButton from '../components/meal/SmartRecipeButton';
 
 const PantryScreen = ({ navigation }) => {
   // Reference to track component renders
@@ -391,22 +390,12 @@ const PantryScreen = ({ navigation }) => {
     );
   };
   
-  // Render Smart Recipe Button
-  const renderSmartRecipeButton = () => {
-    if (pantryItems.length > 0) {
-      return (
-        <View style={styles.smartRecipeButtonContainer}>
-          <SmartRecipeButton
-            onPress={() => navigation.navigate('SmartRecipe')}
-          />
-        </View>
-      );
-    }
-    return null;
-  };
-  
   return (
     <SafeAreaView style={styles.container}>
+      <View style={styles.header}>
+        <Text style={styles.headerTitle}>Your Pantry</Text>
+      </View>
+      
       <TouchableOpacity 
         style={styles.debugButton}
         onPress={() => {
@@ -455,9 +444,6 @@ const PantryScreen = ({ navigation }) => {
           </TouchableOpacity>
         ) : null}
       </View>
-      
-      {/* Smart Recipe Button */}
-      {renderSmartRecipeButton()}
       
       {/* Filter Tabs */}
       <View style={styles.filterTabs}>
@@ -637,6 +623,17 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: Colors.background,
   },
+  header: {
+    paddingVertical: 16,
+    paddingHorizontal: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.border,
+  },
+  headerTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: Colors.textPrimary,
+  },
   debugButton: {
     position: 'absolute',
     top: 20,
@@ -686,10 +683,6 @@ const styles = StyleSheet.create({
     height: 44,
     fontSize: 16,
     color: Colors.textPrimary,
-  },
-  smartRecipeButtonContainer: {
-    paddingHorizontal: 16,
-    marginBottom: 12,
   },
   filterTabs: {
     flexDirection: 'row',

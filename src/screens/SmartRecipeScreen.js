@@ -251,8 +251,8 @@ const styles = StyleSheet.create({
   },
   refreshButton: {
     position: 'absolute',
-    right: 16,
-    bottom: 16,
+    bottom: 20,
+    right: 20,
     width: 56,
     height: 56,
     borderRadius: 28,
@@ -264,6 +264,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
+    zIndex: 999,
   },
 });
 

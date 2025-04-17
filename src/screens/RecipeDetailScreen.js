@@ -12,7 +12,9 @@ import {
   StyleSheet, 
   ScrollView, 
   Image, 
-  TouchableOpacity 
+  TouchableOpacity,
+  Modal,
+  TextInput
 } from 'react-native';
 import { useTheme } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
@@ -20,10 +22,34 @@ import PantryStatusView from '../components/meal/PantryStatusView';
 import AppContext from '../context/AppContext';
 
 const RecipeDetailScreen = ({ route, navigation }) => {
-  const { recipe } = route.params;
+  const { recipe: initialRecipe } = route.params;
+  // Use customized recipe if available, otherwise use the initial recipe
+  const recipe = customizedRecipe || initialRecipe;
   const { colors } = useTheme();
   const { addMealPlan } = useContext(AppContext);
   const [activeTab, setActiveTab] = useState('ingredients'); // 'ingredients', 'instructions', 'nutrition'
+  const [customizing, setCustomizing] = useState(false); // Added for MVP 5.5.2
+  const [customizedRecipe, setCustomizedRecipe] = useState(null); // Store customized recipe
+  
+  // Function to handle customization save
+  const handleSaveCustomization = (customizedData) => {
+    // Create a new recipe object with customized data
+    const updatedRecipe = {
+      ...recipe,
+      ...customizedData,
+      // Keep existing match data
+      matchPercentage: recipe.matchPercentage,
+      availableIngredients: recipe.availableIngredients,
+      missingIngredients: recipe.missingIngredients,
+      canMake: recipe.canMake
+    };
+    
+    setCustomizedRecipe(updatedRecipe);
+    setCustomizing(false);
+    
+    // Show success message
+    alert('Recipe customized successfully!');
+  };
   
   // Function to add recipe to meal plan
   const handleAddToMealPlan = async () => {
@@ -217,8 +243,178 @@ const RecipeDetailScreen = ({ route, navigation }) => {
           >
             <Ionicons name="share-outline" size={20} color={colors.primary} />
             <Text style={[styles.secondaryButtonText, { color: colors.primary }]}>Share</Text>
-          </TouchableOpacity>
-        </View>
+            </TouchableOpacity>
+              
+            <TouchableOpacity 
+              style={[styles.secondaryButton, { borderColor: colors.primary }]}
+              onPress={() => setCustomizing(true)}
+            >
+              <Ionicons name="create-outline" size={20} color={colors.primary} />
+              <Text style={[styles.secondaryButtonText, { color: colors.primary }]}>Customize</Text>
+            </TouchableOpacity>
+          </View>
+          
+          {/* Recipe Customizer Modal */}
+          {customizing && (
+            <Modal
+              visible={customizing}
+              animationType="slide"
+              transparent={true}
+              onRequestClose={() => setCustomizing(false)}
+            >
+              <View style={styles.customizeModalOverlay}>
+                <View style={[styles.customizeModalContainer, { backgroundColor: colors.card }]}>
+                  <View style={styles.customizeModalHeader}>
+                    <Text style={[styles.customizeModalTitle, { color: colors.text }]}>Customize Recipe</Text>
+                    <TouchableOpacity onPress={() => setCustomizing(false)}>
+                      <Ionicons name="close" size={24} color={colors.text} />
+                    </TouchableOpacity>
+                  </View>
+                  
+                  {/* Simple customization form */}
+                  <ScrollView style={styles.customizeFormContainer}>
+                    <View style={styles.customizeFormGroup}>
+                      <Text style={[styles.customizeLabel, { color: colors.text }]}>Recipe Name</Text>
+                      <TextInput
+                        style={[styles.customizeInput, { 
+                          color: colors.text,
+                          backgroundColor: colors.background,
+                          borderColor: colors.border
+                        }]}
+                        value={recipe.title}
+                        onChangeText={(text) => {
+                          // Create a temporary recipe object for user input
+                          setCustomizedRecipe(prev => ({ ...(prev || recipe), title: text }));
+                        }}
+                        placeholder="Recipe name"
+                        placeholderTextColor={colors.text + '80'}
+                      />
+                    </View>
+                    
+                    <View style={styles.customizeFormGroup}>
+                      <Text style={[styles.customizeLabel, { color: colors.text }]}>Description</Text>
+                      <TextInput
+                        style={[styles.customizeInput, styles.customizeTextarea, { 
+                          color: colors.text,
+                          backgroundColor: colors.background,
+                          borderColor: colors.border
+                        }]}
+                        value={recipe.description}
+                        onChangeText={(text) => {
+                          setCustomizedRecipe(prev => ({ ...(prev || recipe), description: text }));
+                        }}
+                        placeholder="Recipe description"
+                        placeholderTextColor={colors.text + '80'}
+                        multiline
+                        numberOfLines={4}
+                      />
+                    </View>
+                    
+                    <View style={styles.customizeRowFormGroup}>
+                      <View style={[styles.customizeFormGroup, { flex: 1, marginRight: 8 }]}>
+                        <Text style={[styles.customizeLabel, { color: colors.text }]}>Prep Time (min)</Text>
+                        <TextInput
+                          style={[styles.customizeInput, { 
+                            color: colors.text,
+                            backgroundColor: colors.background,
+                            borderColor: colors.border
+                          }]}
+                          value={String(recipe.prepTime)}
+                          onChangeText={(text) => {
+                            const prepTime = parseInt(text) || 0;
+                            setCustomizedRecipe(prev => ({ ...(prev || recipe), prepTime }));
+                          }}
+                          placeholder="Prep time"
+                          placeholderTextColor={colors.text + '80'}
+                          keyboardType="number-pad"
+                        />
+                      </View>
+                      
+                      <View style={[styles.customizeFormGroup, { flex: 1, marginLeft: 8 }]}>
+                        <Text style={[styles.customizeLabel, { color: colors.text }]}>Cook Time (min)</Text>
+                        <TextInput
+                          style={[styles.customizeInput, { 
+                            color: colors.text,
+                            backgroundColor: colors.background,
+                            borderColor: colors.border
+                          }]}
+                          value={String(recipe.cookTime)}
+                          onChangeText={(text) => {
+                            const cookTime = parseInt(text) || 0;
+                            setCustomizedRecipe(prev => ({ ...(prev || recipe), cookTime }));
+                          }}
+                          placeholder="Cook time"
+                          placeholderTextColor={colors.text + '80'}
+                          keyboardType="number-pad"
+                        />
+                      </View>
+                    </View>
+                    
+                    <View style={styles.customizeFormGroup}>
+                      <Text style={[styles.customizeLabel, { color: colors.text }]}>Servings</Text>
+                      <TextInput
+                        style={[styles.customizeInput, { 
+                          color: colors.text,
+                          backgroundColor: colors.background,
+                          borderColor: colors.border
+                        }]}
+                        value={String(recipe.servings)}
+                        onChangeText={(text) => {
+                          const servings = parseInt(text) || 1;
+                          setCustomizedRecipe(prev => ({ ...(prev || recipe), servings }));
+                        }}
+                        placeholder="Number of servings"
+                        placeholderTextColor={colors.text + '80'}
+                        keyboardType="number-pad"
+                      />
+                    </View>
+                    
+                    {/* Custom notes field */}
+                    <View style={styles.customizeFormGroup}>
+                      <Text style={[styles.customizeLabel, { color: colors.text }]}>Your Notes</Text>
+                      <TextInput
+                        style={[styles.customizeInput, styles.customizeTextarea, { 
+                          color: colors.text,
+                          backgroundColor: colors.background,
+                          borderColor: colors.border
+                        }]}
+                        value={recipe.customNotes || ''}
+                        onChangeText={(text) => {
+                          setCustomizedRecipe(prev => ({ ...(prev || recipe), customNotes: text }));
+                        }}
+                        placeholder="Add your custom notes about this recipe"
+                        placeholderTextColor={colors.text + '80'}
+                        multiline
+                        numberOfLines={4}
+                      />
+                    </View>
+                  </ScrollView>
+                  
+                  <View style={styles.customizeButtonContainer}>
+                    <TouchableOpacity 
+                      style={[styles.customizeCancelButton, { borderColor: colors.border }]}
+                      onPress={() => {
+                        setCustomizing(false);
+                        // Reset any temporary changes if canceled
+                        if (!customizedRecipe) {
+                          setCustomizedRecipe(null);
+                        }
+                      }}
+                    >
+                      <Text style={[styles.customizeCancelButtonText, { color: colors.text }]}>Cancel</Text>
+                    </TouchableOpacity>
+                    
+                    <TouchableOpacity 
+                      style={[styles.customizeSaveButton, { backgroundColor: colors.primary }]}
+                      onPress={() => handleSaveCustomization(customizedRecipe || recipe)}
+                    >
+                      <Text style={styles.customizeSaveButtonText}>Save Changes</Text>
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              </View>
+            </Modal>
+          )
       </View>
     </ScrollView>
   );
@@ -386,6 +582,96 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '500',
     marginLeft: 8,
+  },
+  
+  // Customization modal styles
+  customizeModalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+  },
+  customizeModalContainer: {
+    width: '100%',
+    maxHeight: '90%',
+    borderRadius: 12,
+    padding: 16,
+    elevation: 5,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+  },
+  customizeModalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 16,
+    paddingBottom: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#E0E0E0',
+  },
+  customizeModalTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  customizeFormContainer: {
+    maxHeight: 450,
+  },
+  customizeFormGroup: {
+    marginBottom: 16,
+  },
+  customizeRowFormGroup: {
+    flexDirection: 'row',
+    marginBottom: 16,
+  },
+  customizeLabel: {
+    fontSize: 14,
+    fontWeight: '500',
+    marginBottom: 8,
+  },
+  customizeInput: {
+    fontSize: 16,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderWidth: 1,
+    borderRadius: 8,
+  },
+  customizeTextarea: {
+    height: 100,
+    textAlignVertical: 'top',
+    paddingTop: 12,
+  },
+  customizeButtonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 16,
+  },
+  customizeCancelButton: {
+    flex: 1,
+    marginRight: 8,
+    paddingVertical: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderRadius: 8,
+  },
+  customizeCancelButtonText: {
+    fontSize: 16,
+    fontWeight: '500',
+  },
+  customizeSaveButton: {
+    flex: 2,
+    paddingVertical: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 8,
+  },
+  customizeSaveButtonText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: '500',
   },
 });
 

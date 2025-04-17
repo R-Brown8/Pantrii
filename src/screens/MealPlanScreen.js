@@ -9,7 +9,7 @@
  * - Add, remove, and manage planned meals
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -24,6 +24,7 @@ import { useAppContext } from '../context/AppContext';
 import Colors from '../constants/colors';
 import WeeklyPlanner from '../components/meal/planner/WeeklyPlanner';
 import MealPlanForm from '../components/meal/planner/MealPlanForm';
+import PantryFilterToggle from '../components/meal/planner/PantryFilterToggle';
 
 const MealPlanScreen = () => {
   // Access global state
@@ -41,12 +42,43 @@ const MealPlanScreen = () => {
   const [generatingPlan, setGeneratingPlan] = useState(false);
   const [showAddMealModal, setShowAddMealModal] = useState(false);
   const [selectedDay, setSelectedDay] = useState('Monday');
+  const [showPantryReady, setShowPantryReady] = useState(false);
+  const [filteredMealPlans, setFilteredMealPlans] = useState([]);
 
   /**
    * Show a dialog to select a day for meal plan generation
    */
   const [showDaySelector, setShowDaySelector] = useState(false);
   const [generatingDay, setGeneratingDay] = useState(null);
+  
+  /**
+   * Filter meal plans based on pantry availability
+   */
+  useEffect(() => {
+    if (!showPantryReady) {
+      setFilteredMealPlans(mealPlans);
+      return;
+    }
+    
+    // Get available ingredients from pantry
+    const availableIngredients = pantryItems.map(item => item.name.toLowerCase());
+    
+    // Filter meal plans that can be made with available ingredients
+    const filtered = mealPlans.filter(plan => {
+      if (!plan.ingredients || plan.ingredients.length === 0) {
+        return true; // Include plans without ingredient information
+      }
+      
+      // Check if all ingredients are available
+      const allIngredientsAvailable = plan.ingredients.every(ingredient => 
+        availableIngredients.includes(ingredient.toLowerCase())
+      );
+      
+      return allIngredientsAvailable;
+    });
+    
+    setFilteredMealPlans(filtered);
+  }, [showPantryReady, mealPlans, pantryItems]);
   
   /**
    * Generate a new meal plan for a specific day
@@ -271,6 +303,15 @@ const MealPlanScreen = () => {
           </Text>
         </View>
         
+        {/* Pantry filter toggle */}
+        <View style={styles.filterContainer}>
+          <PantryFilterToggle
+            value={showPantryReady}
+            onChange={setShowPantryReady}
+            style={styles.filterToggle}
+          />
+        </View>
+        
         {/* Generate plan button */}
         <TouchableOpacity 
           style={styles.generateButton}
@@ -306,8 +347,8 @@ const MealPlanScreen = () => {
             <ActivityIndicator size={36} color={Colors.primary} style={styles.loader} />
           ) : (
             <WeeklyPlanner 
-              mealPlans={mealPlans}
-              onAddMeal={(day) => {
+            mealPlans={showPantryReady ? filteredMealPlans : mealPlans} 
+            onAddMeal={(day) => {
                 setSelectedDay(day);
                 setShowAddMealModal(true);
               }}
@@ -528,6 +569,13 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     backgroundColor: Colors.danger,
     borderRadius: 8,
+  },
+  filterContainer: {
+    paddingHorizontal: 12,
+    marginBottom: 4,
+  },
+  filterToggle: {
+    marginHorizontal: 4,
   },
   daySelectorCancelText: {
     fontSize: 16,

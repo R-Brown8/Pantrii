@@ -1,16 +1,4 @@
-  // Handle when user views meal details
-  const handleViewMealDetails = (meal) => {
-    // If the meal has flavor tags, track this as a flavor combination
-    if (meal.flavors && meal.flavors.length >= 2) {
-      // Track as a liked combination (assuming user liked it since they logged it)
-      trackFlavorCombination(meal.flavors, true);
-    }
-    
-    // For now, just show the image if available
-    if (meal.imageUri) {
-      handleImagePress(meal.imageUri);
-    }
-  };/**
+/**
  * MealHistoryScreen
  * 
  * Displays a chronological list of logged meals.
@@ -144,75 +132,72 @@ const MealHistoryScreen = () => {
   
   // Render a meal item
   const renderMealItem = ({ item }) => {
-    // Create a unique key for each swipeable
-    const swipeableKey = `swipeable-${item.id}`;
-    
     return (
       <Swipeable
-        key={swipeableKey}
+        key={`swipeable-${item.id}`}
         friction={2}
         renderRightActions={() => renderRightActions(item.id)}
         rightThreshold={40}
         overshootRight={false}
       >
-      <Card style={styles.mealCard}>
-        {/* Display meal image if available */}
-        {item.imageUri && (
-          <TouchableOpacity 
-            style={styles.imageContainer}
-            onPress={() => handleViewMealDetails(item)}
-            activeOpacity={0.9}
-          >
-            <Image 
-              source={{ uri: item.imageUri }} 
-              style={styles.mealImage}
-              resizeMode="cover"
-            />
-          </TouchableOpacity>
-        )}
-      
-      <View style={styles.mealContent}>
-        <Text style={styles.mealName}>{item.name}</Text>
+        <Card style={styles.mealCard}>
+          {/* Display meal image if available */}
+          {item.imageUri && (
+            <TouchableOpacity 
+              style={styles.imageContainer}
+              onPress={() => handleViewMealDetails(item)}
+              activeOpacity={0.9}
+            >
+              <Image 
+                source={{ uri: item.imageUri }} 
+                style={styles.mealImage}
+                resizeMode="cover"
+              />
+            </TouchableOpacity>
+          )}
         
-        {item.ingredients.length > 0 && (
-          <View style={styles.ingredientsContainer}>
-            <Text style={styles.sectionLabel}>Ingredients:</Text>
-            <Text style={styles.ingredients}>
-              {item.ingredients.join(', ')}
-            </Text>
+          <View style={styles.mealContent}>
+            <Text style={styles.mealName}>{item.name}</Text>
+            
+            {item.ingredients.length > 0 && (
+              <View style={styles.ingredientsContainer}>
+                <Text style={styles.sectionLabel}>Ingredients:</Text>
+                <Text style={styles.ingredients}>
+                  {item.ingredients.join(', ')}
+                </Text>
+              </View>
+            )}
+            
+            {/* Display flavor tags */}
+            {item.flavors && item.flavors.length > 0 && (
+              <View style={styles.flavorsContainer}>
+                <Text style={styles.sectionLabel}>Flavors:</Text>
+                <View style={styles.flavorsRow}>
+                  {item.flavors.map(flavorId => {
+                    const flavor = Config.flavors.categories.find(f => f.id === flavorId);
+                    return flavor ? (
+                      <FlavorTag 
+                        key={flavor.id}
+                        flavor={flavor}
+                        mini={true}
+                        liked={true}
+                        disabled={true}
+                      />
+                    ) : null;
+                  })}
+                </View>
+              </View>
+            )}
+            
+            {item.notes && (
+              <View style={styles.notesContainer}>
+                <Text style={styles.sectionLabel}>Notes:</Text>
+                <Text style={styles.notes}>{item.notes}</Text>
+              </View>
+            )}
           </View>
-        )}
-        
-        {/* Display flavor tags */}
-        {item.flavors && item.flavors.length > 0 && (
-          <View style={styles.flavorsContainer}>
-            <Text style={styles.sectionLabel}>Flavors:</Text>
-            <View style={styles.flavorsRow}>
-              {item.flavors.map(flavorId => {
-                const flavor = Config.flavors.categories.find(f => f.id === flavorId);
-                return flavor ? (
-                  <FlavorTag 
-                    key={flavor.id}
-                    flavor={flavor}
-                    mini={true}
-                    liked={true}
-                    disabled={true}
-                  />
-                ) : null;
-              })}
-            </View>
-          </View>
-        )}
-        
-        {item.notes && (
-          <View style={styles.notesContainer}>
-            <Text style={styles.sectionLabel}>Notes:</Text>
-            <Text style={styles.notes}>{item.notes}</Text>
-          </View>
-        )}
-      </View>
-    </Card>
-  </Swipeable>
+        </Card>
+      </Swipeable>
     );
   };
   
@@ -220,6 +205,18 @@ const MealHistoryScreen = () => {
   const renderSectionHeader = ({ date }) => (
     <View style={styles.dateHeader}>
       <Text style={styles.dateText}>{formatDisplayDate(date)}</Text>
+    </View>
+  );
+  
+  // Render a single section (each date with its meals)
+  const renderSection = ({ item }) => (
+    <View key={`section-${item.date}`}>
+      {renderSectionHeader(item)}
+      {item.data.map(meal => (
+        <View key={meal.id}>
+          {renderMealItem({ item: meal })}
+        </View>
+      ))}
     </View>
   );
   
@@ -283,17 +280,7 @@ const MealHistoryScreen = () => {
         <FlatList
           data={sections}
           keyExtractor={(item) => item.date}
-          renderItem={({ item }) => (
-            <View>
-              {renderSectionHeader(item)}
-              <FlatList
-                data={item.data}
-                keyExtractor={(subItem) => subItem.id}
-                renderItem={renderMealItem}
-                scrollEnabled={false}
-              />
-            </View>
-          )}
+          renderItem={renderSection}
           contentContainerStyle={styles.listContent}
         />
       ) : (
@@ -392,6 +379,7 @@ const styles = StyleSheet.create({
   mealCard: {
     marginHorizontal: 16,
     overflow: 'hidden',
+    marginBottom: 8,
   },
   imageContainer: {
     width: '100%',

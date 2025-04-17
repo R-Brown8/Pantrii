@@ -17,6 +17,7 @@ import {
   ScrollView,
   TouchableOpacity,
   ActivityIndicator,
+  Modal,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useAppContext } from '../context/AppContext';
@@ -42,126 +43,225 @@ const MealPlanScreen = () => {
   const [selectedDay, setSelectedDay] = useState('Monday');
 
   /**
-   * Generate a new meal plan based on pantry items
+   * Show a dialog to select a day for meal plan generation
    */
-  const handleGeneratePlan = () => {
+  const [showDaySelector, setShowDaySelector] = useState(false);
+  const [generatingDay, setGeneratingDay] = useState(null);
+  
+  /**
+   * Generate a new meal plan for a specific day
+   */
+  const handleGeneratePlan = (day) => {
+    if (!day) {
+      setShowDaySelector(true);
+      return;
+    }
+    
+    setGeneratingDay(day);
     setGeneratingPlan(true);
+    setShowDaySelector(false);
     
     // In a real app, this would call an API or use AI
-    // For MVP 3, we'll generate some basic suggestions based on pantry
     setTimeout(() => {
       try {
         // Get available ingredients from pantry
         const availableIngredients = pantryItems.map(item => item.name.toLowerCase());
         
-        // Get user's flavor preferences (MVP 4)
+        // Get user's flavor preferences
         const likedFlavors = flavorProfile.likes;
         const dislikedFlavors = flavorProfile.dislikes;
         
-        // Simple meal suggestions based on ingredients and flavor preferences
-        let mealSuggestions = [
-          {
-            day: 'Monday',
-            meal: 'Pasta with Tomato Sauce',
-            ingredients: ['pasta', 'tomatoes', 'garlic', 'olive oil']
-          },
-          {
-            day: 'Tuesday',
-            meal: 'Vegetable Stir Fry',
-            ingredients: ['rice', 'mixed vegetables', 'soy sauce']
-          },
-          {
-            day: 'Wednesday',
-            meal: 'Chicken Salad',
-            ingredients: ['chicken breast', 'lettuce', 'tomatoes', 'cucumber']
-          },
-          {
-            day: 'Thursday',
-            meal: 'Bean Tacos',
-            ingredients: ['tortillas', 'beans', 'cheese', 'salsa']
-          },
-          {
-            day: 'Friday',
-            meal: 'Grilled Fish',
-            ingredients: ['fish', 'lemon', 'herbs', 'potatoes']
-          },
-          {
-            day: 'Saturday',
-            meal: 'Pizza Night',
-            ingredients: ['pizza dough', 'cheese', 'tomato sauce', 'toppings']
-          },
-          {
-            day: 'Sunday',
-            meal: 'Roast Chicken',
-            ingredients: ['chicken', 'potatoes', 'carrots', 'onions']
-          }
-        ];
+        // Meal suggestions based on the selected day
+        const mealOptions = {
+          'Monday': ['Pasta with Tomato Sauce', 'Veggie Pasta', 'Mushroom Risotto'],
+          'Tuesday': ['Vegetable Stir Fry', 'Thai Curry', 'Tofu Bowl'],
+          'Wednesday': ['Chicken Salad', 'Caesar Salad', 'Greek Salad'],
+          'Thursday': ['Bean Tacos', 'Beef Burritos', 'Enchiladas'],
+          'Friday': ['Grilled Fish', 'Seafood Paella', 'Shrimp Scampi'],
+          'Saturday': ['Pizza Night', 'Burger Night', 'Taco Night'],
+          'Sunday': ['Roast Chicken', 'Beef Roast', 'Vegetable Lasagna']
+        };
         
-        // Apply flavor preferences to meal suggestions (MVP 4)
-        if (likedFlavors.length > 0 || dislikedFlavors.length > 0) {
-          // Define flavor profiles for meals (in a real app, this would come from a database)
-          const mealFlavorProfiles = {
-            'Pasta with Tomato Sauce': ['umami', 'aromatic', 'sour'],
-            'Vegetable Stir Fry': ['umami', 'salty', 'aromatic'],
-            'Chicken Salad': ['creamy', 'tangy', 'salty'],
-            'Bean Tacos': ['spicy', 'creamy', 'umami'],
-            'Grilled Fish': ['aromatic', 'smoky', 'salty'],
-            'Pizza Night': ['umami', 'creamy', 'aromatic'],
-            'Roast Chicken': ['smoky', 'aromatic', 'umami']
-          };
+        // Ingredients for each meal
+        const mealIngredients = {
+          'Pasta with Tomato Sauce': ['pasta', 'tomatoes', 'garlic', 'olive oil'],
+          'Veggie Pasta': ['pasta', 'zucchini', 'peppers', 'onions', 'garlic'],
+          'Mushroom Risotto': ['arborio rice', 'mushrooms', 'onions', 'vegetable broth'],
+          'Vegetable Stir Fry': ['rice', 'mixed vegetables', 'soy sauce'],
+          'Thai Curry': ['coconut milk', 'curry paste', 'vegetables', 'rice'],
+          'Tofu Bowl': ['tofu', 'rice', 'vegetables', 'soy sauce'],
+          'Chicken Salad': ['chicken breast', 'lettuce', 'tomatoes', 'cucumber'],
+          'Caesar Salad': ['romaine lettuce', 'croutons', 'parmesan', 'dressing'],
+          'Greek Salad': ['cucumber', 'tomatoes', 'feta', 'olives', 'olive oil'],
+          'Bean Tacos': ['tortillas', 'beans', 'cheese', 'salsa'],
+          'Beef Burritos': ['tortillas', 'ground beef', 'beans', 'cheese', 'salsa'],
+          'Enchiladas': ['tortillas', 'enchilada sauce', 'cheese', 'beans'],
+          'Grilled Fish': ['fish', 'lemon', 'herbs', 'potatoes'],
+          'Seafood Paella': ['rice', 'seafood mix', 'saffron', 'tomatoes', 'peppers'],
+          'Shrimp Scampi': ['shrimp', 'pasta', 'garlic', 'butter', 'lemon'],
+          'Pizza Night': ['pizza dough', 'cheese', 'tomato sauce', 'toppings'],
+          'Burger Night': ['ground beef', 'burger buns', 'lettuce', 'tomato', 'cheese'],
+          'Taco Night': ['tortillas', 'ground beef', 'lettuce', 'tomato', 'cheese'],
+          'Roast Chicken': ['chicken', 'potatoes', 'carrots', 'onions'],
+          'Beef Roast': ['beef roast', 'potatoes', 'carrots', 'onions'],
+          'Vegetable Lasagna': ['lasagna noodles', 'vegetables', 'tomato sauce', 'cheese']
+        };
+        
+        // Flavor profiles for each meal
+        const mealFlavorProfiles = {
+          'Pasta with Tomato Sauce': ['umami', 'aromatic', 'sour'],
+          'Veggie Pasta': ['aromatic', 'herbaceous', 'fresh'],
+          'Mushroom Risotto': ['umami', 'creamy', 'earthy'],
+          'Vegetable Stir Fry': ['umami', 'salty', 'aromatic'],
+          'Thai Curry': ['spicy', 'aromatic', 'creamy'],
+          'Tofu Bowl': ['umami', 'salty', 'fresh'],
+          'Chicken Salad': ['creamy', 'tangy', 'salty'],
+          'Caesar Salad': ['umami', 'salty', 'tangy'],
+          'Greek Salad': ['sour', 'salty', 'refreshing'],
+          'Bean Tacos': ['spicy', 'creamy', 'umami'],
+          'Beef Burritos': ['umami', 'spicy', 'savory'],
+          'Enchiladas': ['spicy', 'savory', 'umami'],
+          'Grilled Fish': ['aromatic', 'smoky', 'salty'],
+          'Seafood Paella': ['umami', 'aromatic', 'savory'],
+          'Shrimp Scampi': ['garlicky', 'buttery', 'umami'],
+          'Pizza Night': ['umami', 'creamy', 'aromatic'],
+          'Burger Night': ['umami', 'savory', 'fatty'],
+          'Taco Night': ['spicy', 'savory', 'umami'],
+          'Roast Chicken': ['smoky', 'aromatic', 'umami'],
+          'Beef Roast': ['umami', 'savory', 'rich'],
+          'Vegetable Lasagna': ['umami', 'herbaceous', 'savory']
+        };
+        
+        // Get options for the selected day
+        const options = mealOptions[day] || [];
+        
+        // Score each option based on flavor preferences
+        const scoredOptions = options.map(meal => {
+          const mealFlavors = mealFlavorProfiles[meal] || [];
+          let preferenceScore = 0;
           
-          // Prioritize meals matching liked flavors
-          mealSuggestions = mealSuggestions.map(meal => {
-            const mealFlavors = mealFlavorProfiles[meal.meal] || [];
-            
-            // Calculate a preference score
-            let preferenceScore = 0;
-            
-            // Add points for liked flavors
-            mealFlavors.forEach(flavor => {
-              if (likedFlavors.includes(flavor)) {
-                preferenceScore += 2;
-              }
-            });
-            
-            // Subtract points for disliked flavors
-            mealFlavors.forEach(flavor => {
-              if (dislikedFlavors.includes(flavor)) {
-                preferenceScore -= 3;
-              }
-            });
-            
-            // Return meal with preference score and flavor profile
-            return {
-              ...meal,
-              preferenceScore,
-              flavorProfile: mealFlavors
-            };
+          // Add points for liked flavors
+          mealFlavors.forEach(flavor => {
+            if (likedFlavors.includes(flavor)) {
+              preferenceScore += 2;
+            }
           });
           
-          // Sort by preference score (highest first)
-          mealSuggestions.sort((a, b) => b.preferenceScore - a.preferenceScore);
-        }
-        
-        // Add each suggestion to the meal plan
-        mealSuggestions.forEach(suggestion => {
-          // Extract just the needed properties for the meal plan
-          const { day, meal, ingredients } = suggestion;
-          addMealPlan({ day, meal, ingredients });
+          // Subtract points for disliked flavors
+          mealFlavors.forEach(flavor => {
+            if (dislikedFlavors.includes(flavor)) {
+              preferenceScore -= 3;
+            }
+          });
+          
+          return {
+            meal,
+            preferenceScore,
+            ingredients: mealIngredients[meal] || [],
+            flavorProfile: mealFlavors
+          };
         });
         
-        alert('Meal plan generated successfully!');
+        // Sort by preference score
+        scoredOptions.sort((a, b) => b.preferenceScore - a.preferenceScore);
+        
+        // Take the best option
+        const bestOption = scoredOptions[0];
+        
+        if (bestOption) {
+          // Remove any existing meal plans for this day
+          const existingPlans = mealPlans.filter(plan => plan.day === day);
+          existingPlans.forEach(plan => {
+            removeMealPlan(plan.id);
+          });
+          
+          // Add the new meal plan
+          addMealPlan({
+            day,
+            meal: bestOption.meal,
+            ingredients: bestOption.ingredients,
+            flavorProfile: bestOption.flavorProfile
+          });
+          
+          alert(`Meal plan for ${day} generated successfully!`);
+        } else {
+          alert(`Could not generate a meal plan for ${day}.`);
+        }
       } catch (error) {
         console.error('Error generating meal plan:', error);
         alert('Failed to generate meal plan. Please try again.');
       } finally {
         setGeneratingPlan(false);
+        setGeneratingDay(null);
       }
     }, 1500); // Simulate API delay
   };
   
+  // Render the day selector modal
+  const renderDaySelectorModal = () => {
+    const isForMealPlan = generatingDay === null;
+    const isForCustomMeal = generatingDay === "custom";
+    let title = "Select a day";
+    
+    if (isForMealPlan) {
+      title = "Select a day to generate meal plan";
+    } else if (isForCustomMeal) {
+      title = "Select a day to add custom meal";
+    }
+    
+    return (
+      <Modal
+        visible={showDaySelector}
+        animationType="slide"
+        transparent={true}
+        onRequestClose={() => {
+          setShowDaySelector(false);
+          setGeneratingDay(null);
+        }}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.daySelectorContainer}>
+            <Text style={styles.daySelectorTitle}>{title}</Text>
+            
+            {/* Day options */}
+            {['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].map((day) => (
+              <TouchableOpacity 
+                key={day}
+                style={styles.daySelectorOption}
+                onPress={() => {
+                  if (isForMealPlan) {
+                    handleGeneratePlan(day);
+                  } else if (isForCustomMeal) {
+                    setSelectedDay(day);
+                    setShowAddMealModal(true);
+                    setShowDaySelector(false);
+                    setGeneratingDay(null);
+                  }
+                }}
+              >
+                <Text style={styles.daySelectorOptionText}>{day}</Text>
+              </TouchableOpacity>
+            ))}
+            
+            {/* Cancel button */}
+            <TouchableOpacity 
+              style={styles.daySelectorCancelButton}
+              onPress={() => {
+                setShowDaySelector(false);
+                setGeneratingDay(null);
+              }}
+            >
+              <Text style={styles.daySelectorCancelText}>Cancel</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+    );
+  };
+  
   return (
     <View style={styles.container}>
+      {renderDaySelectorModal()}
       <ScrollView>
         {/* Header */}
         <View style={styles.header}>
@@ -174,11 +274,16 @@ const MealPlanScreen = () => {
         {/* Generate plan button */}
         <TouchableOpacity 
           style={styles.generateButton}
-          onPress={handleGeneratePlan}
+          onPress={() => handleGeneratePlan(null)}
           disabled={generatingPlan}
         >
           {generatingPlan ? (
-            <ActivityIndicator size={24} color={Colors.textLight} />
+            <>
+              <ActivityIndicator size={24} color={Colors.textLight} />
+              <Text style={[styles.generateButtonText, { marginLeft: 10 }]}>
+                Generating for {generatingDay}...
+              </Text>
+            </>
           ) : (
             <>
               <Ionicons 
@@ -277,24 +382,7 @@ const MealPlanScreen = () => {
           </View>
         </View>
         
-        {/* Manual add meal button */}
-        <TouchableOpacity 
-          style={styles.addButton}
-          onPress={() => {
-            setSelectedDay('Monday');
-            setShowAddMealModal(true);
-          }}
-        >
-          <Ionicons 
-            name="add-circle" 
-            size={22} 
-            color={Colors.textLight} 
-            style={styles.buttonIcon} 
-          />
-          <Text style={styles.addButtonText}>
-            Add Custom Meal
-          </Text>
-        </TouchableOpacity>
+
       </ScrollView>
       
       {/* Meal plan form modal */}
@@ -395,20 +483,56 @@ const styles = StyleSheet.create({
     color: Colors.textSecondary,
     lineHeight: 20,
   },
-  addButton: {
-    backgroundColor: Colors.secondary,
-    flexDirection: 'row',
-    alignItems: 'center',
+
+  // Day selector modal styles
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
     justifyContent: 'center',
-    margin: 16,
-    marginTop: 8,
-    marginBottom: 30,
-    padding: 16,
-    borderRadius: 12,
+    alignItems: 'center',
   },
-  addButtonText: {
-    color: Colors.textLight,
+  daySelectorContainer: {
+    width: '80%',
+    backgroundColor: Colors.card,
+    borderRadius: 12,
+    padding: 16,
+    elevation: 5,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+  },
+  daySelectorTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: Colors.textPrimary,
+    marginBottom: 16,
+    textAlign: 'center',
+  },
+  daySelectorOption: {
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    backgroundColor: Colors.background,
+    borderRadius: 8,
+    marginBottom: 8,
+    borderWidth: 1,
+    borderColor: Colors.border,
+  },
+  daySelectorOptionText: {
     fontSize: 16,
+    color: Colors.textPrimary,
+    textAlign: 'center',
+  },
+  daySelectorCancelButton: {
+    marginTop: 8,
+    paddingVertical: 12,
+    backgroundColor: Colors.danger,
+    borderRadius: 8,
+  },
+  daySelectorCancelText: {
+    fontSize: 16,
+    color: Colors.textLight,
+    textAlign: 'center',
     fontWeight: '600',
   },
 });

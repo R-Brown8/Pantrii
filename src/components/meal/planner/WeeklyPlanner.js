@@ -21,13 +21,8 @@ const WeeklyPlanner = ({ mealPlans, onAddMeal, onRemoveMeal }) => {
   // Track which day is selected
   const [selectedDay, setSelectedDay] = useState('Monday');
   
-  // Get unique days from the meal plans
-  const days = [...new Set(mealPlans.map(plan => plan.day))];
-  
-  // If no days in the data, use default week days
-  const weekDays = days.length > 0
-    ? days
-    : ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+  // Always show all days of the week
+  const weekDays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
   
   // Get the plans for the selected day
   const selectedPlans = mealPlans.filter(plan => plan.day === selectedDay);

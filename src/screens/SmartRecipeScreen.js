@@ -17,11 +17,39 @@ import {
 } from 'react-native';
 import { useRecipeContext } from '../context/RecipeContext';
 import SmartRecipeCard from '../components/meal/SmartRecipeCard';
+import { useAppContext } from '../context/AppContext';
+import Modal from 'react-native-modal';
 import { useTheme } from '@react-navigation/native';
 import Colors from '../constants/colors';
 import { Ionicons } from '@expo/vector-icons';
 
 const SmartRecipeScreen = ({ navigation }) => {
+  const { addMealPlan } = useAppContext();
+  const [showDayPicker, setShowDayPicker] = useState(false);
+  const [recipeToAdd, setRecipeToAdd] = useState(null);
+  const daysOfWeek = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+
+  // Handler to trigger modal
+  const handleAddToMealPlan = (recipe) => {
+    setRecipeToAdd(recipe);
+    setShowDayPicker(true);
+  };
+
+  // Handler to add to meal plan
+  const handleSelectDay = (day) => {
+    if (!recipeToAdd) return;
+    addMealPlan({
+      id: Date.now().toString(),
+      day,
+      meal: recipeToAdd.name || recipeToAdd.title,
+      ingredients: recipeToAdd.ingredients,
+      flavors: recipeToAdd.flavors || [],
+      recipe: recipeToAdd, // Store the full recipe object!
+    });
+    setShowDayPicker(false);
+    setRecipeToAdd(null);
+  };
+
   const { colors } = useTheme();
   const { suggestions, loading, error, getSmartSuggestions } = useRecipeContext();
   const [filterType, setFilterType] = useState('all'); // 'all', 'canMake', 'expiring'
@@ -134,8 +162,9 @@ const SmartRecipeScreen = ({ navigation }) => {
             <SmartRecipeCard
               recipe={item}
               onPress={() => navigation.navigate('RecipeDetail', { recipe: item })}
+              onAddToMealPlan={handleAddToMealPlan}
             />
-          )}
+          )} 
           contentContainerStyle={styles.listContent}
           showsVerticalScrollIndicator={false}
         />
@@ -149,6 +178,37 @@ const SmartRecipeScreen = ({ navigation }) => {
       >
         <Ionicons name="refresh-outline" size={24} color="white" />
       </TouchableOpacity>
+
+      {/* Day picker bottom sheet modal */}
+      <Modal
+        isVisible={showDayPicker}
+        onBackdropPress={() => setShowDayPicker(false)}
+        onBackButtonPress={() => setShowDayPicker(false)}
+        style={{ justifyContent: 'flex-end', margin: 0 }}
+        backdropOpacity={0.25}
+        animationIn="slideInUp"
+        animationOut="slideOutDown"
+      >
+        <View style={{ backgroundColor: 'white', borderTopLeftRadius: 18, borderTopRightRadius: 18, padding: 24 }}>
+          <Text style={{ fontSize: 18, fontWeight: 'bold', marginBottom: 12 }}>Add to Meal Plan</Text>
+          <Text style={{ fontSize: 15, marginBottom: 20, color: '#444' }}>Which day do you want to add this meal to?</Text>
+          {daysOfWeek.map(day => (
+            <TouchableOpacity
+              key={day}
+              style={{ paddingVertical: 12, borderBottomWidth: 0.5, borderColor: '#eee' }}
+              onPress={() => handleSelectDay(day)}
+            >
+              <Text style={{ fontSize: 16 }}>{day}</Text>
+            </TouchableOpacity>
+          ))}
+          <TouchableOpacity
+            onPress={() => setShowDayPicker(false)}
+            style={{ marginTop: 18, alignSelf: 'center' }}
+          >
+            <Text style={{ color: '#888', fontSize: 15 }}>Cancel</Text>
+          </TouchableOpacity>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 };

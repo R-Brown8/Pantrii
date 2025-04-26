@@ -78,14 +78,22 @@ const RecipeDetailScreen = ({ route, navigation }) => {
       style={[styles.container, { backgroundColor: colors.background }]}
       showsVerticalScrollIndicator={false}
     >
-      {/* Recipe image placeholder */}
-      <View style={[styles.imagePlaceholder, { backgroundColor: colors.primary + '20' }]}>
-        <Ionicons name="restaurant-outline" size={80} color={colors.primary} />
-      </View>
+      {/* Recipe image or placeholder */}
+      {recipe.thumbnail || recipe.imageUrl ? (
+        <Image
+          source={{ uri: recipe.thumbnail || recipe.imageUrl }}
+          style={styles.imagePlaceholder}
+          resizeMode="cover"
+        />
+      ) : (
+        <View style={[styles.imagePlaceholder, { backgroundColor: colors.primary + '20' }]}> 
+          <Ionicons name="restaurant-outline" size={80} color={colors.primary} />
+        </View>
+      )}
 
       {/* Recipe basic info */}
       <View style={styles.contentContainer}>
-        <Text style={[styles.title, { color: colors.text }]}>{recipe.title}</Text>
+        <Text style={[styles.title, { color: colors.text }]}>{recipe.name || recipe.title}</Text>
         <Text style={[styles.description, { color: colors.text }]}>
           {recipe.description}
         </Text>
@@ -116,24 +124,6 @@ const RecipeDetailScreen = ({ route, navigation }) => {
             </View>
           </View>
         </View>
-
-        {/* Match percentage indicator */}
-        {recipe.matchPercentage !== undefined && (
-          <View style={[styles.matchContainer, { backgroundColor: colors.primary + '10' }]}>
-            <Text style={[styles.matchLabel, { color: colors.primary }]}>
-              Pantry Match
-            </Text>
-            <Text style={[styles.matchValue, { color: colors.primary }]}>
-              {recipe.matchPercentage}%
-            </Text>
-            {recipe.canMake && (
-              <View style={styles.readyBadge}>
-                <Ionicons name="checkmark-circle" size={16} color="white" />
-                <Text style={styles.readyText}>Ready to cook</Text>
-              </View>
-            )}
-          </View>
-        )}
 
         {/* Tab navigation */}
         <View style={styles.tabContainer}>
@@ -239,22 +229,21 @@ const RecipeDetailScreen = ({ route, navigation }) => {
           </TouchableOpacity>
 
           <TouchableOpacity
-            style={[styles.secondaryButton, { borderColor: colors.primary }]}
+            style={[styles.shareButton, { borderColor: colors.primary }]}
           >
-            <Ionicons name="share-outline" size={20} color={colors.primary} />
-            <Text style={[styles.secondaryButtonText, { color: colors.primary }]}>Share</Text>
-            </TouchableOpacity>
+            <Ionicons name="share-outline" size={20} color={colors.primary} style={{ paddingHorizontal: 2 }} />
+          </TouchableOpacity>
 
-            <TouchableOpacity
-              style={[styles.secondaryButton, { borderColor: colors.primary }]}
-              onPress={() => setCustomizing(true)}
-            >
-              <Ionicons name="create-outline" size={20} color={colors.primary} />
-              <Text style={[styles.secondaryButtonText, { color: colors.primary }]}>Customize</Text>
-            </TouchableOpacity>
-          </View>
+          <TouchableOpacity
+            style={[styles.customizeButton, { borderColor: colors.primary }]}
+            onPress={() => setCustomizing(true)}
+          >
+            <Ionicons name="create-outline" size={20} color={colors.primary} />
+            <Text style={[styles.secondaryButtonText, { color: colors.primary }]}>Customize</Text>
+          </TouchableOpacity>
+        </View>
 
-          {/* Recipe Customizer Modal */}
+        {/* Recipe Customizer Modal */}
           {customizing && (
             <Modal
               visible={customizing}
@@ -575,6 +564,28 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     paddingVertical: 12,
+    paddingHorizontal: 8,
+    borderRadius: 8,
+    borderWidth: 1,
+  },
+  shareButton: {
+    flex: 0.6,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: 10,
+    paddingHorizontal: 2,
+    borderRadius: 8,
+    borderWidth: 1,
+    marginRight: 8,
+  },
+  customizeButton: {
+    flex: 1.4,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: 12,
+    paddingHorizontal: 12,
     borderRadius: 8,
     borderWidth: 1,
   },

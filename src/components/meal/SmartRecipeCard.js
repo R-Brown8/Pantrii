@@ -17,7 +17,7 @@ import { useTheme } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import RecipeMatchIndicator from '../ui/RecipeMatchIndicator';
 
-const SmartRecipeCard = ({ recipe, onPress }) => {
+const SmartRecipeCard = ({ recipe, onPress, onAddToMealPlan }) => {
   const { colors } = useTheme();
   
   // Ingredient status summary
@@ -38,24 +38,32 @@ const SmartRecipeCard = ({ recipe, onPress }) => {
       <View style={styles.contentContainer}>
         {/* Recipe basic info */}
         <View style={styles.infoContainer}>
-          <Text style={[styles.title, { color: colors.text }]}>{recipe.title}</Text>
+          <Text style={[styles.title, { color: colors.text }]}>{recipe.name || recipe.title}</Text>
           <Text style={[styles.description, { color: colors.text }]} numberOfLines={2}>
             {recipe.description}
           </Text>
           
-          {/* Recipe tags - only show if tags exist and aren't empty */}
-          {recipe.tags && recipe.tags.length > 0 && (
-            <View style={styles.tagsContainer}>
-              {recipe.tags.slice(0, 3).map((tag, index) => (
-                <View 
-                  key={index} 
-                  style={[styles.tag, { backgroundColor: colors.primary + '20' }]}
-                >
-                  <Text style={[styles.tagText, { color: colors.primary }]}>{tag}</Text>
-                </View>
-              ))}
-            </View>
-          )}
+
+
+{/*
+  Recipe Tags Section
+  - Only displays if 'recipe.tags' exists and is not empty.
+  - Shows up to 3 tags as colored pill-shaped labels.
+  - Each tag uses a bold yellow background and black text for contrast.
+*/}
+{recipe.tags && recipe.tags.length > 0 && (
+  <View style={styles.tagsContainer}>
+    {/* Loop through the first 3 tags and render each as a styled label */}
+    {recipe.tags.slice(0, 3).map((tag, index) => (
+      <View 
+        key={index} 
+        style={[styles.tag, { backgroundColor: colors.primary }]}
+      >
+        <Text style={[styles.tagText, { color: '#FFF' }]}>{tag}</Text>
+      </View>
+    ))}
+  </View>
+)}
           
           {/* Recipe timing */}
           <View style={styles.detailsContainer}>
@@ -83,9 +91,9 @@ const SmartRecipeCard = ({ recipe, onPress }) => {
         </View>
         
         {/* Recipe image or placeholder */}
-        {recipe.imageUrl ? (
+        {recipe.thumbnail || recipe.imageUrl ? (
           <Image 
-            source={{ uri: recipe.imageUrl }} 
+            source={{ uri: recipe.thumbnail || recipe.imageUrl }} 
             style={styles.image}
             resizeMode="cover"
           />
@@ -117,11 +125,40 @@ const SmartRecipeCard = ({ recipe, onPress }) => {
           </View>
         )}
       </View>
+      {/* Add to Meal Plan button */}
+      {onAddToMealPlan && (
+        <TouchableOpacity style={styles.addToMealPlanButton} onPress={() => onAddToMealPlan(recipe)} activeOpacity={0.85}>
+          <Ionicons name="add-circle-outline" size={18} color="#4CAF50" />
+          <Text style={styles.addToMealPlanText}>Add to Meal Plan</Text>
+        </TouchableOpacity>
+      )}
     </TouchableOpacity>
   );
 };
 
 const styles = StyleSheet.create({
+  addToMealPlanButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    alignSelf: 'flex-end',
+    backgroundColor: '#E8F5E9',
+    borderRadius: 16,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    marginTop: 12,
+    marginBottom: 0,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.06,
+    shadowRadius: 2,
+    elevation: 1,
+  },
+  addToMealPlanText: {
+    color: '#388E3C',
+    fontWeight: '600',
+    fontSize: 14,
+    marginLeft: 6,
+  },
   card: {
     borderRadius: 12,
     marginBottom: 16,

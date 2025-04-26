@@ -40,12 +40,16 @@ const MealPlanForm = ({
   const [useCustomMeal, setUseCustomMeal] = useState(true);
   const [selectedMealId, setSelectedMealId] = useState(null);
   const [selectedFlavors, setSelectedFlavors] = useState([]);
+  const [instructions, setInstructions] = useState('');
+  const [imageUrl, setImageUrl] = useState('');
 
   // Reset the form when the modal becomes visible
   useEffect(() => {
     if (visible) {
       setMealName('');
       setIngredients('');
+      setInstructions('');
+      setImageUrl('');
       setUseCustomMeal(true);
       setSelectedMealId(null);
       setSelectedFlavors([]);
@@ -95,7 +99,15 @@ const MealPlanForm = ({
       day: selectedDay,
       meal: mealName,
       ingredients: ingredientsArray,
-      flavors: selectedFlavors, // Add flavors to meal plan (MVP 4)
+      flavors: selectedFlavors,
+      recipe: {
+        name: mealName,
+        title: mealName,
+        ingredients: ingredientsArray,
+        instructions: instructions,
+        imageUrl: imageUrl,
+        flavors: selectedFlavors,
+      },
     });
 
     onClose();
@@ -203,6 +215,28 @@ const MealPlanForm = ({
                   numberOfLines={4}
                 />
                 
+                {/* Instructions Field */}
+                <Text style={styles.label}>Instructions:</Text>
+                <TextInput
+                  style={[styles.input, styles.textArea]}
+                  value={instructions}
+                  onChangeText={setInstructions}
+                  placeholder="Enter cooking instructions"
+                  placeholderTextColor={Colors.textTertiary}
+                  multiline
+                  numberOfLines={4}
+                />
+
+                {/* Image URL Field */}
+                <Text style={styles.label}>Image URL:</Text>
+                <TextInput
+                  style={styles.input}
+                  value={imageUrl}
+                  onChangeText={setImageUrl}
+                  placeholder="Paste an image URL (optional)"
+                  placeholderTextColor={Colors.textTertiary}
+                />
+
                 {/* Flavor Tags Section (MVP 4) */}
                 <Text style={styles.label}>Flavors:</Text>
                 <Text style={styles.sublabel}>Select flavors that describe this meal:</Text>

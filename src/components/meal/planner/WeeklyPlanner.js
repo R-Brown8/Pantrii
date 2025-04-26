@@ -15,46 +15,53 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import Colors from '../../../constants/colors';
+import useNavigationToRecipeDetail from './useNavigationToRecipeDetail';
 
 // Props interface for the component
 const WeeklyPlanner = ({ mealPlans, onAddMeal, onRemoveMeal }) => {
   // Track which day is selected
   const [selectedDay, setSelectedDay] = useState('Monday');
+  const goToRecipeDetail = useNavigationToRecipeDetail();
   
   // Always show all days of the week
-  const weekDays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+  // Use short labels for compact buttons
+  const weekDays = [
+    { key: 'Monday', label: 'M' },
+    { key: 'Tuesday', label: 'T' },
+    { key: 'Wednesday', label: 'W' },
+    { key: 'Thursday', label: 'Th' },
+    { key: 'Friday', label: 'F' },
+    { key: 'Saturday', label: 'Sa' },
+    { key: 'Sunday', label: 'Su' }
+  ];
   
   // Get the plans for the selected day
   const selectedPlans = mealPlans.filter(plan => plan.day === selectedDay);
   
   return (
     <View style={styles.container}>
-      {/* Horizontal scrolling day selector */}
-      <ScrollView 
-        horizontal 
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={styles.daysContainer}
-      >
+      {/* Horizontal day selector */}
+      <View style={styles.daysContainer}>
         {weekDays.map((day) => (
           <TouchableOpacity
-            key={day}
+            key={day.key}
             style={[
               styles.dayButton,
-              selectedDay === day && styles.selectedDayButton
+              selectedDay === day.key && styles.selectedDayButton
             ]}
-            onPress={() => setSelectedDay(day)}
+            onPress={() => setSelectedDay(day.key)}
           >
             <Text
               style={[
                 styles.dayText,
-                selectedDay === day && styles.selectedDayText
+                selectedDay === day.key && styles.selectedDayText
               ]}
             >
-              {day.substring(0, 3)}
+              {day.label}
             </Text>
           </TouchableOpacity>
         ))}
-      </ScrollView>
+      </View>
       
       {/* Meal plans for the selected day */}
       <View style={styles.planContainer}>
@@ -69,15 +76,23 @@ const WeeklyPlanner = ({ mealPlans, onAddMeal, onRemoveMeal }) => {
                   color={Colors.primary} 
                   style={styles.mealIcon} 
                 />
-                <Text style={styles.mealTitle}>{plan.meal}</Text>
+                <TouchableOpacity onPress={() => goToRecipeDetail(plan)}>
+  <Text style={styles.mealTitle}>{plan.meal}</Text>
+</TouchableOpacity>
               </View>
               
               {/* Ingredients list */}
               <View style={styles.ingredientsContainer}>
                 <Text style={styles.ingredientsLabel}>Ingredients:</Text>
-                <Text style={styles.ingredients}>
-                  {plan.ingredients.join(', ')}
-                </Text>
+                <TouchableOpacity onPress={() => goToRecipeDetail(plan)}>
+  <Text style={styles.ingredients}>
+    {Array.isArray(plan.ingredients) && plan.ingredients.length > 0
+      ? typeof plan.ingredients[0] === 'object'
+        ? plan.ingredients.map(ing => ing.name || ing).join(', ')
+        : plan.ingredients.join(', ')
+      : ''}
+  </Text>
+</TouchableOpacity>
               </View>
               
               {/* Action buttons */}
@@ -146,29 +161,39 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     marginHorizontal: 16,
     marginBottom: 16,
-    borderWidth: 1,
-    borderColor: Colors.border,
   },
   daysContainer: {
-    padding: 12,
-    backgroundColor: Colors.background,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 0,
+    paddingVertical: 2,
+    marginHorizontal: 0,
   },
   dayButton: {
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    borderRadius: 20,
-    marginRight: 8,
-    backgroundColor: Colors.input,
+    backgroundColor: Colors.background,
+    borderRadius: 7,
+    paddingHorizontal: 0,
+    paddingVertical: 4,
+    marginHorizontal: 0,
+    width: 36,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: Colors.border,
+    flex: 1,
+    marginRight: 2,
   },
   selectedDayButton: {
-    backgroundColor: Colors.primary,
+    backgroundColor: Colors.primary + '25',
+    borderColor: Colors.primary,
   },
   dayText: {
+    fontSize: 12,
     fontWeight: '600',
-    color: Colors.textPrimary,
+    color: Colors.textSecondary,
   },
   selectedDayText: {
-    color: Colors.textLight,
+    color: Colors.primary,
   },
   planContainer: {
     padding: 16,

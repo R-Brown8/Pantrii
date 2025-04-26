@@ -16,7 +16,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '@react-navigation/native';
 import Colors from '../../../constants/colors';
 
-const PantryFilterToggle = ({ value, onChange, style }) => {
+const PantryFilterToggle = ({ value, onChange, style, label }) => {
   const { colors } = useTheme();
   
   return (
@@ -24,7 +24,7 @@ const PantryFilterToggle = ({ value, onChange, style }) => {
       style={[
         styles.container, 
         style,
-        value ? { backgroundColor: colors.primary + '15' } : { backgroundColor: colors.card }
+        { backgroundColor: colors.card }
       ]}
       onPress={() => onChange(!value)}
       activeOpacity={0.7}
@@ -41,7 +41,7 @@ const PantryFilterToggle = ({ value, onChange, style }) => {
             { color: value ? colors.primary : colors.text }
           ]}
         >
-          Show pantry-ready meals only
+          {label || "Pantry-Ready Only "}
         </Text>
       </View>
       

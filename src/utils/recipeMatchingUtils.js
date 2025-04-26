@@ -11,10 +11,26 @@
  * @returns {Array} - Recipes with match information, sorted by match percentage
  */
 export const calculateRecipeMatches = (recipes, pantryItems) => {
-  // Map pantry item names to lowercase for case-insensitive matching
-  const pantryItemNames = pantryItems.map(item => item.name.toLowerCase());
+  // Filter out recipes with missing or undefined critical fields
+  const filteredRecipes = recipes.filter(recipe => {
+    // Must have a title or name
+    const hasTitle = recipe.title || recipe.name;
+    // Must have a non-empty ingredients array
+    const hasIngredients = Array.isArray(recipe.ingredients) && recipe.ingredients.length > 0;
+    // Be flexible: allow instructions/tags to be undefined or missing
+    return hasTitle && hasIngredients;
+  });
+
+  // Map pantry item names to lowercase and trim for case-insensitive, flexible matching
+  const pantryItemNames = pantryItems.map(item => item.name.trim().toLowerCase());
+
+  // Flexible match: returns true if pantryName and ingredientName overlap as substrings
+  function matchesIngredient(pantryNames, ingredientName) {
+    const ing = ingredientName.trim().toLowerCase();
+    return pantryNames.some(pan => pan.includes(ing) || ing.includes(pan));
+  }
   
-  return recipes.map(recipe => {
+  return filteredRecipes.map(recipe => {
     // Count required ingredients
     const requiredIngredients = recipe.ingredients.filter(ing => ing.required);
     const totalRequiredCount = requiredIngredients.length;
@@ -22,12 +38,12 @@ export const calculateRecipeMatches = (recipes, pantryItems) => {
     
     // Find available ingredients
     const availableIngredients = recipe.ingredients.filter(
-      ingredient => pantryItemNames.includes(ingredient.name.toLowerCase())
+      ingredient => matchesIngredient(pantryItemNames, ingredient.name)
     );
     
     // Find available required ingredients
     const availableRequiredIngredients = requiredIngredients.filter(
-      ingredient => pantryItemNames.includes(ingredient.name.toLowerCase())
+      ingredient => matchesIngredient(pantryItemNames, ingredient.name)
     );
     
     // Calculate match percentages
@@ -40,7 +56,7 @@ export const calculateRecipeMatches = (recipes, pantryItems) => {
     
     // Find missing ingredients
     const missingIngredients = recipe.ingredients.filter(
-      ingredient => !pantryItemNames.includes(ingredient.name.toLowerCase())
+      ingredient => !matchesIngredient(pantryItemNames, ingredient.name)
     );
     
     return {
@@ -56,11 +72,10 @@ export const calculateRecipeMatches = (recipes, pantryItems) => {
     if (a.canMake !== b.canMake) {
       return a.canMake ? -1 : 1;
     }
-    
     // Then sort by match percentage
     return b.matchPercentage - a.matchPercentage;
   });
-};
+}
 
 /**
  * Prioritize recipes based on expiring ingredients

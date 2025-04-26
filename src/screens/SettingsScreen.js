@@ -23,8 +23,10 @@ import Colors from '../constants/colors';
 import Config from '../constants/config';
 import Card from '../components/ui/Card';
 import FlavorTag from '../components/flavor/FlavorTag';
+import Debug from '../constants/debug';
 
 const SettingsScreen = () => {
+  const [debugCollapsed, setDebugCollapsed] = useState(true);
   const { loadData, flavorProfile, addFlavorLike, addFlavorDislike, removeFlavorPreference } = useAppContext();
 
   // App settings (with default values)
@@ -34,15 +36,36 @@ const SettingsScreen = () => {
     enableNotifications: false,
   });
 
+  // Debug settings (sync with Debug constants)
+  const [debugSettings, setDebugSettings] = useState({
+    ENABLE_DEBUG: Debug.ENABLE_DEBUG,
+    LOG_STATE: Debug.LOG_STATE,
+    LOG_FILTERS: Debug.LOG_FILTERS,
+    LOG_DATES: Debug.LOG_DATES,
+    LOG_UI: Debug.LOG_UI,
+    LOG_STORAGE: Debug.LOG_STORAGE,
+    LOG_LIFECYCLE: Debug.LOG_LIFECYCLE,
+  });
+
   // Toggle a boolean setting
   const toggleSetting = (key) => {
     setSettings(prev => {
       const updated = { ...prev, [key]: !prev[key] };
-
-      // Save to storage
       AsyncStorage.setItem('savour_settings', JSON.stringify(updated))
         .catch(error => console.error('Error saving settings:', error));
+      return updated;
+    });
+  };
 
+  // Toggle a debug setting
+  const toggleDebugSetting = (key) => {
+    setDebugSettings(prev => {
+      const updated = { ...prev, [key]: !prev[key] };
+      // Update in-memory Debug constants
+      Debug[key] = updated[key];
+      // Persist to AsyncStorage
+      AsyncStorage.setItem('flavormind_debug', JSON.stringify(updated))
+        .catch(error => console.error('Error saving debug settings:', error));
       return updated;
     });
   };
@@ -55,26 +78,40 @@ const SettingsScreen = () => {
       [
         { text: 'Cancel', style: 'cancel' },
         {
-          text: 'Clear Data',
+          text: 'Continue',
           style: 'destructive',
-          onPress: async () => {
-            try {
-              // Clear relevant storage keys
-              await AsyncStorage.multiRemove([
-                Config.storage.pantryItems,
-                Config.storage.mealHistory,
-                Config.storage.flavorProfile,
-                'savour_pantry_categories'
-              ]);
+          onPress: () => {
+            // Show second confirmation dialog
+            Alert.alert(
+              'Are You Absolutely Sure?',
+              'This is your last chance to cancel. ALL DATA will be permanently deleted and CANNOT be recovered.',
+              [
+                { text: 'Cancel', style: 'cancel' },
+                {
+                  text: 'Yes, Delete Everything',
+                  style: 'destructive',
+                  onPress: async () => {
+                    try {
+                      // Clear relevant storage keys
+                      await AsyncStorage.multiRemove([
+                        Config.storage.pantryItems,
+                        Config.storage.mealHistory,
+                        Config.storage.flavorProfile,
+                        'savour_pantry_categories'
+                      ]);
 
-              // Reload app data
-              await loadData();
+                      // Reload app data
+                      await loadData();
 
-              Alert.alert('Success', 'All data has been cleared');
-            } catch (error) {
-              console.error('Error clearing data:', error);
-              Alert.alert('Error', 'Failed to clear data. Please try again.');
-            }
+                      Alert.alert('Success', 'All data has been cleared');
+                    } catch (error) {
+                      console.error('Error clearing data:', error);
+                      Alert.alert('Error', 'Failed to clear data. Please try again.');
+                    }
+                  }
+                }
+              ]
+            );
           }
         }
       ]
@@ -104,6 +141,26 @@ const SettingsScreen = () => {
           onValueChange={() => toggleSetting(key)}
           trackColor={{ false: Colors.gray300, true: Colors.primary + '70' }}
           thumbColor={settings[key] ? Colors.primary : Colors.gray500}
+        />
+      </View>
+    </Card>
+  );
+
+  // Render a debug toggle setting
+  const renderDebugToggle = (key, label, description = null) => (
+    <Card style={styles.settingCard}>
+      <View style={styles.settingRow}>
+        <View style={styles.settingInfo}>
+          <Text style={styles.settingLabel}>{label}</Text>
+          {description && (
+            <Text style={styles.settingDescription}>{description}</Text>
+          )}
+        </View>
+        <Switch
+          value={debugSettings[key]}
+          onValueChange={() => toggleDebugSetting(key)}
+          trackColor={{ false: Colors.gray300, true: Colors.warning }}
+          thumbColor={debugSettings[key] ? Colors.warning : Colors.gray500}
         />
       </View>
     </Card>
@@ -159,7 +216,7 @@ const SettingsScreen = () => {
           </>  
           ))}
 
-          {/* Flavor Preferences (MVP 4) */}
+        {/* Flavor Preferences (MVP 4) */}
         {renderSection('Flavor Preferences', (
           <Card style={styles.flavorCard}>
             <Text style={styles.flavorSectionSubtitle}>
@@ -254,6 +311,34 @@ const SettingsScreen = () => {
           </Card>
         ))}
 
+        {/* Debug Section */}
+        <View style={styles.section}>
+          <TouchableOpacity
+            style={styles.sectionHeaderRow}
+            onPress={() => setDebugCollapsed(prev => !prev)}
+            activeOpacity={0.7}
+          >
+            <Text style={styles.sectionTitle}>Debug</Text>
+            <Ionicons
+              name={debugCollapsed ? 'chevron-down-outline' : 'chevron-up-outline'}
+              size={20}
+              color={Colors.textSecondary}
+              style={{ marginLeft: 8 }}
+            />
+          </TouchableOpacity>
+          {!debugCollapsed && (
+            <View>
+              {renderDebugToggle('ENABLE_DEBUG', 'Enable Debug Logs', 'Master switch for all debug logs')}
+              {renderDebugToggle('LOG_STATE', 'State Logs', 'Log state changes and context updates')}
+              {renderDebugToggle('LOG_FILTERS', 'Filter Logs', 'Log filtering operations and results')}
+              {renderDebugToggle('LOG_DATES', 'Date Logs', 'Log date calculations and expiry checks')}
+              {renderDebugToggle('LOG_UI', 'UI Logs', 'Log UI events and rendering')}
+              {renderDebugToggle('LOG_STORAGE', 'Storage Logs', 'Log storage operations and persistence')}
+              {renderDebugToggle('LOG_LIFECYCLE', 'Lifecycle Logs', 'Log component mounts/unmounts and lifecycle events')}
+            </View>
+          )}
+        </View>
+
         {/* Data Management */}
         {renderSection('Data Management', (
           <>
@@ -307,6 +392,13 @@ const SettingsScreen = () => {
 };
 
 const styles = StyleSheet.create({
+  sectionHeaderRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: 8,
+    paddingHorizontal: 4,
+  },
   container: {
     flex: 1,
     backgroundColor: Colors.background,
